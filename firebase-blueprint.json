@@ -1,0 +1,235 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Student profile and verification details",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 100 },
+        "phone": { "type": "string", "maxLength": 20 },
+        "college": { "type": "string", "maxLength": 120 },
+        "department": { "type": "string", "maxLength": 100 },
+        "year": { "type": "string", "maxLength": 20 },
+        "division": { "type": "string", "maxLength": 10 },
+        "rollNumber": { "type": "string", "maxLength": 30 },
+        "semester": { "type": "string", "maxLength": 20 },
+        "verificationStatus": { "type": "string", "enum": ["phone_verified", "pending_review", "verified"] },
+        "avatarUrl": { "type": "string", "maxLength": 500 },
+        "timeCredits": { "type": "number" },
+        "challengePoints": { "type": "number" },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" }
+      },
+      "required": ["userId", "name", "phone", "verificationStatus"]
+    },
+    "Subject": {
+      "title": "Subject",
+      "description": "Academic course with grading structure, theoretical/practical/tutorial credits, and continuous/mid-term/end-sem/term-work/oral marks",
+      "type": "object",
+      "properties": {
+        "subjectId": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "semester": { "type": "string", "maxLength": 20 },
+        "code": { "type": "string", "maxLength": 30 },
+        "name": { "type": "string", "maxLength": 100 },
+        "credits": { "type": "object" },
+        "marks": { "type": "object" },
+        "color": { "type": "string", "maxLength": 30 },
+        "targetGrade": { "type": "string", "maxLength": 5 },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["subjectId", "userId", "code", "name"]
+    },
+    "Ride": {
+      "title": "Ride",
+      "description": "Student carpool listing with route, seats and driver details",
+      "type": "object",
+      "properties": {
+        "rideId": { "type": "string", "maxLength": 128 },
+        "driverId": { "type": "string", "maxLength": 128 },
+        "driverName": { "type": "string", "maxLength": 100 },
+        "origin": { "type": "string", "maxLength": 150 },
+        "destination": { "type": "string", "maxLength": 150 },
+        "departureTime": { "type": "string", "maxLength": 50 },
+        "totalSeats": { "type": "number" },
+        "availableSeats": { "type": "number" },
+        "fareContribution": { "type": "number" },
+        "status": { "type": "string", "enum": ["available", "full", "completed", "cancelled"] },
+        "notes": { "type": "string", "maxLength": 300 },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["rideId", "driverId", "driverName", "origin", "destination", "departureTime", "totalSeats", "availableSeats", "status"]
+    },
+    "SeatRequest": {
+      "title": "SeatRequest",
+      "description": "Passenger booking request for a ride",
+      "type": "object",
+      "properties": {
+        "requestId": { "type": "string", "maxLength": 128 },
+        "rideId": { "type": "string", "maxLength": 128 },
+        "passengerId": { "type": "string", "maxLength": 128 },
+        "passengerName": { "type": "string", "maxLength": 100 },
+        "passengerPhone": { "type": "string", "maxLength": 20 },
+        "seatsRequested": { "type": "number" },
+        "status": { "type": "string", "enum": ["pending", "accepted", "declined", "cancelled"] },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["requestId", "rideId", "passengerId", "passengerName", "seatsRequested", "status"]
+    },
+    "Challenge": {
+      "title": "Challenge",
+      "description": "Peer campus challenge or competition",
+      "type": "object",
+      "properties": {
+        "challengeId": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 120 },
+        "description": { "type": "string", "maxLength": 500 },
+        "category": { "type": "string", "maxLength": 50 },
+        "difficulty": { "type": "string", "enum": ["Easy", "Medium", "Hard"] },
+        "pointsReward": { "type": "number" },
+        "deadline": { "type": "string", "maxLength": 50 },
+        "participantsCount": { "type": "number" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["challengeId", "title", "category", "pointsReward"]
+    },
+    "ChallengeParticipation": {
+      "title": "ChallengeParticipation",
+      "description": "Student progress record on a challenge",
+      "type": "object",
+      "properties": {
+        "participationId": { "type": "string", "maxLength": 128 },
+        "challengeId": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "status": { "type": "string", "enum": ["joined", "in_progress", "completed"] },
+        "pointsAwarded": { "type": "boolean" },
+        "completedAt": { "type": "string" }
+      },
+      "required": ["participationId", "challengeId", "userId", "status"]
+    },
+    "Event": {
+      "title": "Event",
+      "description": "Campus event schedule and venue",
+      "type": "object",
+      "properties": {
+        "eventId": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 120 },
+        "organizer": { "type": "string", "maxLength": 100 },
+        "category": { "type": "string", "maxLength": 50 },
+        "dateTime": { "type": "string", "maxLength": 50 },
+        "venue": { "type": "string", "maxLength": 120 },
+        "description": { "type": "string", "maxLength": 600 },
+        "maxSeats": { "type": "number" },
+        "registeredCount": { "type": "number" }
+      },
+      "required": ["eventId", "title", "organizer", "dateTime", "venue"]
+    },
+    "EventRegistration": {
+      "title": "EventRegistration",
+      "description": "Student event RSVP record",
+      "type": "object",
+      "properties": {
+        "registrationId": { "type": "string", "maxLength": 128 },
+        "eventId": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "registeredAt": { "type": "string" }
+      },
+      "required": ["registrationId", "eventId", "userId"]
+    },
+    "LearningSession": {
+      "title": "LearningSession",
+      "description": "Peer study or mentoring session",
+      "type": "object",
+      "properties": {
+        "sessionId": { "type": "string", "maxLength": 128 },
+        "topic": { "type": "string", "maxLength": 120 },
+        "hostId": { "type": "string", "maxLength": 128 },
+        "hostName": { "type": "string", "maxLength": 100 },
+        "skillLevel": { "type": "string", "maxLength": 30 },
+        "durationMinutes": { "type": "number" },
+        "dateTime": { "type": "string", "maxLength": 50 },
+        "venue": { "type": "string", "maxLength": 120 },
+        "maxParticipants": { "type": "number" },
+        "status": { "type": "string", "enum": ["open", "in_progress", "completed", "cancelled"] }
+      },
+      "required": ["sessionId", "topic", "hostId", "hostName", "durationMinutes", "status"]
+    },
+    "CreditTransaction": {
+      "title": "CreditTransaction",
+      "description": "Ledger entry for student time credits",
+      "type": "object",
+      "properties": {
+        "transactionId": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "amount": { "type": "number" },
+        "type": { "type": "string", "enum": ["earned", "spent", "bonus"] },
+        "description": { "type": "string", "maxLength": 200 },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["transactionId", "userId", "amount", "type", "description"]
+    },
+    "Notification": {
+      "title": "Notification",
+      "description": "Personalized student notification",
+      "type": "object",
+      "properties": {
+        "notificationId": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 120 },
+        "message": { "type": "string", "maxLength": 300 },
+        "type": { "type": "string", "enum": ["academic", "ride", "challenge", "event", "learning", "system"] },
+        "link": { "type": "string", "maxLength": 150 },
+        "isRead": { "type": "boolean" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["notificationId", "userId", "title", "message", "isRead"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "UserProfile",
+      "description": "Student profiles indexed by user ID"
+    },
+    "/subjects/{subjectId}": {
+      "schema": "Subject",
+      "description": "Student academic subjects and assessments"
+    },
+    "/rides/{rideId}": {
+      "schema": "Ride",
+      "description": "Carpool listings published by students"
+    },
+    "/seat_requests/{requestId}": {
+      "schema": "SeatRequest",
+      "description": "Ride seat reservation requests"
+    },
+    "/challenges/{challengeId}": {
+      "schema": "Challenge",
+      "description": "Campus peer challenges"
+    },
+    "/challenge_participations/{participationId}": {
+      "schema": "ChallengeParticipation",
+      "description": "Challenge progress per student"
+    },
+    "/events/{eventId}": {
+      "schema": "Event",
+      "description": "Campus calendar events"
+    },
+    "/event_registrations/{registrationId}": {
+      "schema": "EventRegistration",
+      "description": "Event attendee RSVPs"
+    },
+    "/learning_sessions/{sessionId}": {
+      "schema": "LearningSession",
+      "description": "Peer study and tutoring sessions"
+    },
+    "/credit_transactions/{transactionId}": {
+      "schema": "CreditTransaction",
+      "description": "Student time-credit ledger entries"
+    },
+    "/notifications/{notificationId}": {
+      "schema": "Notification",
+      "description": "Student notification inbox"
+    }
+  }
+}

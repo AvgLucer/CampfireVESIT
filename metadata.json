@@ -1,0 +1,6 @@
+{
+  "name": "Campfire — Campus360 Student Companion",
+  "description": "The all-in-one campus companion for first-year students: academics, carpools, peer challenges, campus guide, events, and study credits.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
