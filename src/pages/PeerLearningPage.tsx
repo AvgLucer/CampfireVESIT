@@ -12,6 +12,7 @@ import {
   ShieldCheck,
   BookOpen,
 } from 'lucide-react';
+import { UserBadgesRow } from '../components/badges/UserBadgesRow';
 
 export const PeerLearningPage: React.FC = () => {
   const {
@@ -144,8 +145,9 @@ export const PeerLearningPage: React.FC = () => {
                           {session.subjectCode}
                         </span>
                       </div>
-                      <div className="text-[11px] text-[#555952] mt-0.5">
-                        Hosted by <strong>{session.hostName}</strong> ({session.skillLevel})
+                      <div className="text-[11px] text-[#555952] mt-0.5 flex items-center gap-1.5 flex-wrap">
+                        <span>Hosted by <strong>{session.hostName}</strong> ({session.skillLevel})</span>
+                        <UserBadgesRow userId={session.hostId} size="xs" />
                       </div>
                     </div>
 

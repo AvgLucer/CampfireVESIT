@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
+import { useEmberEconomy } from '../context/EmberEconomyContext';
+import { UserBadgesRow } from '../components/badges/UserBadgesRow';
 import { ChallengeCategory } from '../types';
 import {
   Trophy,
@@ -24,6 +26,8 @@ export const ChallengesPage: React.FC = () => {
     joinChallenge,
     completeChallenge,
   } = useApp();
+
+  const { equippedBadge } = useEmberEconomy();
 
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [leaderboardTimeframe, setLeaderboardTimeframe] = useState<'weekly' | 'monthly' | 'overall'>('weekly');
@@ -246,14 +250,17 @@ export const ChallengesPage: React.FC = () => {
                     </div>
 
                     <div>
-                      <div className="text-xs text-[#171916] flex items-center gap-1.5">
-                        <span>{entry.name}</span>
-                        {isUser && (
-                          <span className="text-[10px] text-[#F97316] font-normal">(You)</span>
-                        )}
-                      </div>
-                      <div className="text-[10px] text-[#737871] font-normal">
-                        {entry.department} · {entry.streakDays}-day streak
+                      <div className="flex flex-col gap-0.5">
+                        <div className="text-xs text-[#171916] flex items-center gap-2">
+                          <span className="font-bold">{entry.name}</span>
+                          {isUser && (
+                            <span className="text-[10px] text-[#F97316] font-normal">(You)</span>
+                          )}
+                          <UserBadgesRow userId={entry.userId} size="xs" />
+                        </div>
+                        <div className="text-[10px] text-[#737871] font-normal">
+                          {entry.department} · {entry.streakDays}-day streak
+                        </div>
                       </div>
                     </div>
                   </div>

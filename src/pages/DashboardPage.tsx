@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
+import { useEmberEconomy } from '../context/EmberEconomyContext';
+import { EmberToken } from '../components/common/EmberToken';
+import { BadgeArtwork } from '../components/badges/BadgeArtwork';
+import { UserBadgesRow } from '../components/badges/UserBadgesRow';
 import { calculateSemesterSgpa } from '../utils/academicCalculations';
 import {
   Clock,
@@ -21,6 +25,10 @@ import {
   Edit3,
   Building,
   UserCheck,
+  Box,
+  Layers,
+  Award,
+  Gift,
 } from 'lucide-react';
 
 export const DashboardPage: React.FC = () => {
@@ -39,6 +47,18 @@ export const DashboardPage: React.FC = () => {
     openProfileSwitcher,
     openStatusModal,
   } = useApp();
+
+  const {
+    economy,
+    equippedBadge,
+    isDailyRewardAvailable,
+    dailyRewardCountdown,
+    claimDailyReward,
+    isDailyCrateAvailable,
+    dailyCrateCountdown,
+    openWalletModal,
+    completionPercentage,
+  } = useEmberEconomy();
 
   const [feedFilter, setFeedFilter] = useState<'all' | 'rides' | 'challenges' | 'events'>('all');
 
@@ -123,6 +143,11 @@ export const DashboardPage: React.FC = () => {
               <Users className="w-3.5 h-3.5 text-[#F97316]" />
               <span>Switch Profile</span>
             </button>
+
+            {/* Student's 5 Profile Badges */}
+            <div className="flex items-center gap-1.5 pl-1">
+              <UserBadgesRow userId={user?.userId} size="xs" />
+            </div>
           </div>
         </div>
 
@@ -292,6 +317,134 @@ export const DashboardPage: React.FC = () => {
             </Link>
           </div>
         </div>
+      </div>
+
+      {/* COMPACT EMBER ECONOMY & BADGE SHOWCASE PANEL (Requested) */}
+      <div className="p-5 sm:p-6 rounded-3xl bg-white border border-[#E5E3DC] shadow-xs space-y-4">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+          {/* Section 1: EMBER Balance & Claim Button */}
+          <div className="flex items-center gap-4">
+            <button
+              onClick={openWalletModal}
+              className="p-3.5 rounded-2xl bg-[#FFF8F5] border border-orange-200/80 hover:border-[#F97316] transition-colors text-left cursor-pointer shadow-2xs"
+              title="Click to view full EMBER transaction history"
+            >
+              <div className="text-[10px] font-bold uppercase tracking-wider text-[#737871]">
+                EMBER Vault
+              </div>
+              <div className="mt-1">
+                <EmberToken amount={economy.emberBalance} size="lg" />
+              </div>
+            </button>
+
+            <div className="space-y-1">
+              <div className="text-xs font-extrabold text-[#171916]">
+                24H Activity Reward
+              </div>
+              {isDailyRewardAvailable ? (
+                <button
+                  onClick={claimDailyReward}
+                  className="py-1.5 px-3 bg-[#F97316] hover:bg-[#EA580C] text-white text-xs font-bold rounded-xl shadow-xs transition-colors flex items-center gap-1.5 cursor-pointer animate-pulse"
+                >
+                  <Gift className="w-3.5 h-3.5" />
+                  <span>Claim 5 EMBER</span>
+                </button>
+              ) : (
+                <div className="text-[11px] text-[#737871] font-mono flex items-center gap-1">
+                  <Clock className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>Next reward in <strong>{dailyRewardCountdown}</strong></span>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Section 2: Daily Crate Status */}
+          <div className="p-3 rounded-2xl bg-[#FAF9F5] border border-[#E5E3DC] flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-base shrink-0">
+              📦
+            </div>
+            <div>
+              <div className="text-[10px] uppercase font-bold text-[#737871]">
+                Daily Badge Crate
+              </div>
+              {isDailyCrateAvailable ? (
+                <Link
+                  to="/crates"
+                  className="text-xs font-extrabold text-emerald-700 hover:underline flex items-center gap-1 mt-0.5"
+                >
+                  <span>Ready to Open (Free!)</span>
+                  <ArrowRight className="w-3 h-3" />
+                </Link>
+              ) : (
+                <div className="text-xs font-mono font-bold text-[#EA580C] mt-0.5">
+                  Cooldown: {dailyCrateCountdown}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Section 3: Featured Profile Badge & Collection Summary */}
+          <div className="flex items-center gap-3.5 border-t lg:border-t-0 lg:border-l border-[#E5E3DC] pt-3 lg:pt-0 lg:pl-5">
+            <div className="shrink-0">
+              {equippedBadge ? (
+                <BadgeArtwork badge={equippedBadge} size="md" />
+              ) : (
+                <div className="w-12 h-12 rounded-2xl bg-neutral-100 border border-neutral-300 flex items-center justify-center text-[#737871]">
+                  <Award className="w-5 h-5" />
+                </div>
+              )}
+            </div>
+            <div>
+              <div className="text-[10px] uppercase font-bold text-[#737871]">
+                Featured Badge ({economy.ownedBadgeIds.length}/75)
+              </div>
+              <div className="text-xs font-extrabold text-[#171916] truncate max-w-[140px]">
+                {equippedBadge ? equippedBadge.name : 'None Equipped'}
+              </div>
+              <div className="flex items-center gap-2 mt-0.5">
+                <Link
+                  to="/badges"
+                  className="text-[11px] font-bold text-[#F97316] hover:underline"
+                >
+                  Browse Collection ({completionPercentage}%)
+                </Link>
+                <span>·</span>
+                <Link
+                  to="/crates"
+                  className="text-[11px] font-bold text-[#555952] hover:text-[#171916]"
+                >
+                  Crate Shop
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Recent Discovery item (if available) */}
+        {economy.openingHistory.length > 0 && (
+          <div className="pt-3 border-t border-[#E5E3DC] flex items-center justify-between text-xs">
+            <div className="flex items-center gap-2 text-[#555952]">
+              <span className="text-[11px] font-bold text-[#737871]">Recent Discovery:</span>
+              <span className="font-bold text-[#171916] flex items-center gap-1">
+                <span>{economy.openingHistory[0].badge.name}</span>
+                <span className="text-[10px] text-[#F97316]">({economy.openingHistory[0].badge.rarity})</span>
+              </span>
+              {economy.openingHistory[0].isDuplicate && (
+                <span className="text-[10px] font-mono text-amber-600 bg-amber-50 px-1.5 py-0.2 rounded font-bold">
+                  +{economy.openingHistory[0].compensation} EMBER
+                </span>
+              )}
+            </div>
+
+            <Link
+              to="/crates"
+              className="text-[11px] font-bold text-[#F97316] hover:underline flex items-center gap-1"
+            >
+              <span>Open More Crates</span>
+              <ArrowRight className="w-3 h-3" />
+            </Link>
+          </div>
+        )}
       </div>
 
       {/* Main 2-Column Split: Today's Schedule & Academic Pulse */}
@@ -518,6 +671,32 @@ export const DashboardPage: React.FC = () => {
           </Link>
 
           <Link
+            to="/badges"
+            className="p-3.5 rounded-xl bg-white border border-[#E5E3DC] hover:border-[#F97316] transition-all flex flex-col gap-2 group shadow-2xs"
+          >
+            <div className="w-8 h-8 rounded-lg bg-orange-100 text-[#F97316] flex items-center justify-center group-hover:scale-105 transition-transform">
+              <Layers className="w-4 h-4" />
+            </div>
+            <div>
+              <div className="text-xs font-bold text-[#171916]">Badge Collection</div>
+              <div className="text-[10px] text-[#737871]">{economy.ownedBadgeIds.length} of 75 unlocked</div>
+            </div>
+          </Link>
+
+          <Link
+            to="/crates"
+            className="p-3.5 rounded-xl bg-white border border-[#E5E3DC] hover:border-emerald-500 transition-all flex flex-col gap-2 group shadow-2xs"
+          >
+            <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center group-hover:scale-105 transition-transform">
+              <Box className="w-4 h-4" />
+            </div>
+            <div>
+              <div className="text-xs font-bold text-[#171916]">Crate Shop</div>
+              <div className="text-[10px] text-[#737871]">Daily free drops</div>
+            </div>
+          </Link>
+
+          <Link
             to="/learning"
             className="p-3.5 rounded-xl bg-white border border-[#E5E3DC] hover:border-rose-500 transition-all flex flex-col gap-2 group shadow-2xs"
           >
@@ -526,7 +705,6 @@ export const DashboardPage: React.FC = () => {
             </div>
             <div>
               <div className="text-xs font-bold text-[#171916]">Study Session</div>
-              <div className="text-[10px] text-[#737871]">Peer time credits</div>
             </div>
           </Link>
         </div>

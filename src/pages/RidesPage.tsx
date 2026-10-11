@@ -25,6 +25,7 @@ import {
   ChevronDown,
   ChevronUp,
 } from 'lucide-react';
+import { UserBadgesRow } from '../components/badges/UserBadgesRow';
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from 'react-leaflet';
 import L from 'leaflet';
 
@@ -89,15 +90,14 @@ export const RidesPage: React.FC = () => {
   const [vehicleInfo, setVehicleInfo] = useState('Shared Auto-Rickshaw • MH 03 BK 5521');
   const [notes, setNotes] = useState('Direct 2-stop ride. Leaving on time.');
 
-  // Handle fare plan selection in modal
+  // Handle fare plan selection in modal (Total 3 seats: 1 host + 2 acceptable passengers)
   const handleSelectFarePlan = (plan: '3_sharing' | '2_sharing' | 'custom') => {
     setFarePlan(plan);
+    setTotalSeats(3); // In total strictly 3 seats: host + 2 acceptable passengers
     if (plan === '3_sharing') {
-      setTotalSeats(3);
-      setFareContribution(30);
+      setFareContribution(30); // ₹30 if in total there's 3 people
     } else if (plan === '2_sharing') {
-      setTotalSeats(2);
-      setFareContribution(45);
+      setFareContribution(45); // ₹45 if in total there's 2 people sharing
     } else {
       setFareContribution(customFareInput);
     }
@@ -150,8 +150,8 @@ export const RidesPage: React.FC = () => {
       direction,
       departureTime,
       departureDate: 'Today',
-      totalSeats: Number(totalSeats),
-      availableSeats: Number(totalSeats),
+      totalSeats: 3, // In total 3 seats (1 host + 2 acceptable passengers)
+      availableSeats: farePlan === '2_sharing' ? 1 : 2, // passenger seats open
       fareContribution: Number(fareContribution),
       vehicleInfo,
       notes,
@@ -359,11 +359,12 @@ export const RidesPage: React.FC = () => {
                       )}
                     </div>
                     <div>
-                      <div className="font-bold text-[#171916] flex items-center gap-1">
+                      <div className="font-bold text-[#171916] flex items-center gap-1.5">
                         <span>{req.passengerName}</span>
                         {req.passengerUsername && (
                           <span className="text-[10px] font-mono text-[#737871] font-normal">{req.passengerUsername}</span>
                         )}
+                        <UserBadgesRow userId={req.passengerId} size="xs" />
                       </div>
                       <div className="text-[11px] text-[#555952]">
                         Requested {req.seatsRequested} seat on {r ? `${r.origin} ➔ ${r.destination}` : 'your ride'}
@@ -786,7 +787,7 @@ export const RidesPage: React.FC = () => {
                           )}
                         </div>
                         <div className="overflow-hidden">
-                          <div className="text-xs font-bold text-[#171916] flex items-center gap-1 truncate">
+                          <div className="text-xs font-bold text-[#171916] flex items-center gap-1.5 flex-wrap">
                             <span className="truncate">{ride.driverName}</span>
                             {isUserRide && (
                               <span className="text-[9px] bg-orange-100 text-[#EA580C] font-bold px-1.5 py-0.2 rounded shrink-0">
@@ -798,6 +799,7 @@ export const RidesPage: React.FC = () => {
                                 <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
                               </span>
                             )}
+                            <UserBadgesRow userId={ride.driverId} size="xs" />
                           </div>
                           <div className="text-[11px] text-[#737871] truncate">{ride.vehicleInfo}</div>
                         </div>
@@ -848,12 +850,103 @@ export const RidesPage: React.FC = () => {
                       </div>
                     </div>
 
+                    {/* TOTAL 3 SEATS CAPACITY (HOST + 2 ACCEPTABLE PASSENGERS) */}
+                    <div className="p-3 rounded-xl bg-orange-50/40 border border-orange-200/80 space-y-2 text-xs">
+                      <div className="flex items-center justify-between text-[11px]">
+                        <span className="font-extrabold text-[#171916] flex items-center gap-1.5">
+                          <Users className="w-3.5 h-3.5 text-[#F97316]" />
+                          <span>Total 3 Seats (Host + 2 Acceptable People):</span>
+                        </span>
+                        <span className="text-[10px] font-bold text-orange-800 font-mono">
+                          {acceptedPassengers.length + 1} / 3 Occupied
+                        </span>
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-1.5">
+                        {/* Seat 1: Host */}
+                        <div className="p-2 rounded-lg bg-white border border-orange-300 shadow-2xs flex flex-col items-center text-center gap-1">
+                          <div className="text-[9px] font-black uppercase text-orange-700 tracking-wider">
+                            Seat 1 (Host)
+                          </div>
+                          <div className="w-7 h-7 rounded-full bg-orange-100 text-[#F97316] font-bold flex items-center justify-center text-xs overflow-hidden shrink-0">
+                            {ride.driverAvatar ? (
+                              <img src={ride.driverAvatar} alt={ride.driverName} className="w-full h-full object-cover" />
+                            ) : (
+                              ride.driverName.charAt(0)
+                            )}
+                          </div>
+                          <div className="text-[10px] font-bold text-[#171916] truncate w-full" title={ride.driverName}>
+                            {ride.driverName.split(' ')[0]}
+                          </div>
+                          <UserBadgesRow userId={ride.driverId} size="xs" />
+                        </div>
+
+                        {/* Seat 2: Passenger 1 */}
+                        <div className={`p-2 rounded-lg border shadow-2xs flex flex-col items-center text-center gap-1 ${
+                          acceptedPassengers[0] ? 'bg-white border-emerald-300' : 'bg-emerald-50/40 border-dashed border-emerald-300'
+                        }`}>
+                          <div className="text-[9px] font-black uppercase text-emerald-800 tracking-wider">
+                            Seat 2 (Passenger)
+                          </div>
+                          {acceptedPassengers[0] ? (
+                            <>
+                              <div className="w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 font-bold flex items-center justify-center text-xs overflow-hidden shrink-0">
+                                {acceptedPassengers[0].passengerAvatar ? (
+                                  <img src={acceptedPassengers[0].passengerAvatar} alt={acceptedPassengers[0].passengerName} className="w-full h-full object-cover" />
+                                ) : (
+                                  acceptedPassengers[0].passengerName.charAt(0)
+                                )}
+                              </div>
+                              <div className="text-[10px] font-bold text-[#171916] truncate w-full" title={acceptedPassengers[0].passengerName}>
+                                {acceptedPassengers[0].passengerName.split(' ')[0]}
+                              </div>
+                              <UserBadgesRow userId={acceptedPassengers[0].passengerId} size="xs" />
+                            </>
+                          ) : (
+                            <div className="my-auto py-1 text-center">
+                              <div className="text-[10px] font-bold text-emerald-700">Open Seat</div>
+                              <div className="text-[9px] font-mono text-[#737871]">₹{ride.fareContribution}</div>
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Seat 3: Passenger 2 */}
+                        <div className={`p-2 rounded-lg border shadow-2xs flex flex-col items-center text-center gap-1 ${
+                          acceptedPassengers[1] ? 'bg-white border-emerald-300' : 'bg-emerald-50/40 border-dashed border-emerald-300'
+                        }`}>
+                          <div className="text-[9px] font-black uppercase text-emerald-800 tracking-wider">
+                            Seat 3 (Passenger)
+                          </div>
+                          {acceptedPassengers[1] ? (
+                            <>
+                              <div className="w-7 h-7 rounded-full bg-emerald-100 text-emerald-700 font-bold flex items-center justify-center text-xs overflow-hidden shrink-0">
+                                {acceptedPassengers[1].passengerAvatar ? (
+                                  <img src={acceptedPassengers[1].passengerAvatar} alt={acceptedPassengers[1].passengerName} className="w-full h-full object-cover" />
+                                ) : (
+                                  acceptedPassengers[1].passengerName.charAt(0)
+                                )}
+                              </div>
+                              <div className="text-[10px] font-bold text-[#171916] truncate w-full" title={acceptedPassengers[1].passengerName}>
+                                {acceptedPassengers[1].passengerName.split(' ')[0]}
+                              </div>
+                              <UserBadgesRow userId={acceptedPassengers[1].passengerId} size="xs" />
+                            </>
+                          ) : (
+                            <div className="my-auto py-1 text-center">
+                              <div className="text-[10px] font-bold text-emerald-700">Open Seat</div>
+                              <div className="text-[9px] font-mono text-[#737871]">₹{ride.fareContribution}</div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
                     {/* LIVE LIST: ACCEPTED PASSENGERS BY THE HOST */}
                     <div className="p-3 rounded-xl bg-[#FAF9F5] border border-[#E5E3DC] space-y-2 text-xs">
                       <div className="flex items-center justify-between">
                         <span className="font-bold text-[#171916] flex items-center gap-1.5 text-[11px]">
                           <Users className="w-3.5 h-3.5 text-emerald-600" />
-                          <span>Accepted Co-Riders ({acceptedPassengers.length}/{ride.totalSeats}):</span>
+                          <span>Accepted Co-Riders ({acceptedPassengers.length}/{ride.totalSeats - 1}):</span>
                         </span>
                         <span className="text-[10px] text-[#737871]">
                           {ride.availableSeats === 0 ? 'Fully booked' : `${ride.availableSeats} open`}
@@ -886,7 +979,7 @@ export const RidesPage: React.FC = () => {
                                     )}
                                   </div>
                                   <div className="overflow-hidden">
-                                    <div className="font-bold text-[#171916] truncate flex items-center gap-1">
+                                    <div className="font-bold text-[#171916] truncate flex items-center gap-1.5">
                                       <span>{p.passengerName}</span>
                                       {isMe && (
                                         <span className="text-[9px] bg-emerald-200 text-emerald-800 font-bold px-1 rounded">
@@ -896,6 +989,7 @@ export const RidesPage: React.FC = () => {
                                       {p.passengerVerified && (
                                         <ShieldCheck className="w-3 h-3 text-emerald-600 shrink-0" />
                                       )}
+                                      <UserBadgesRow userId={p.passengerId} size="xs" />
                                     </div>
                                     {p.passengerUsername && (
                                       <div className="text-[10px] font-mono text-[#737871] truncate">
@@ -943,13 +1037,14 @@ export const RidesPage: React.FC = () => {
                                     {p.passengerName.charAt(0)}
                                   </div>
                                   <div className="overflow-hidden">
-                                    <div className="font-bold text-[#171916] truncate flex items-center gap-1">
+                                    <div className="font-bold text-[#171916] truncate flex items-center gap-1.5">
                                       <span>{p.passengerName}</span>
                                       {isMe && (
                                         <span className="text-[9px] bg-amber-100 text-amber-800 font-bold px-1 rounded">
                                           You
                                         </span>
                                       )}
+                                      <UserBadgesRow userId={p.passengerId} size="xs" />
                                     </div>
                                     {p.passengerUsername && (
                                       <div className="text-[10px] font-mono text-[#737871] truncate">
@@ -1092,6 +1187,10 @@ export const RidesPage: React.FC = () => {
                 <span className="text-base font-extrabold text-[#F97316] font-mono">
                   ₹{requestConfirmRide.fareContribution}
                 </span>
+              </div>
+              <div className="pt-2 border-t border-[#E5E3DC] flex items-center justify-between">
+                <span className="text-[#737871]">Your Profile Badges:</span>
+                <UserBadgesRow userId={user?.userId} size="xs" />
               </div>
             </div>
 

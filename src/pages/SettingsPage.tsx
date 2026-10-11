@@ -1,5 +1,13 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
+import { useEmberEconomy } from '../context/EmberEconomyContext';
+import { EmberToken } from '../components/common/EmberToken';
+import { BadgeArtwork } from '../components/badges/BadgeArtwork';
+import { UserBadgesRow } from '../components/badges/UserBadgesRow';
+import { COLLECTOR_FRAMES } from '../data/crateDefinitions';
+import { RARITY_DETAILS } from '../data/badgeCatalogue';
+import { BadgeRarity } from '../types/ember';
 import { MiniMothAdapter } from '../services/authAdapter';
 import {
   User,
@@ -11,6 +19,13 @@ import {
   CheckCircle2,
   AlertTriangle,
   School,
+  Award,
+  Sparkles,
+  Layers,
+  Box,
+  Star,
+  Check,
+  X,
 } from 'lucide-react';
 
 export const SettingsPage: React.FC = () => {
@@ -23,6 +38,22 @@ export const SettingsPage: React.FC = () => {
     openProfileSwitcher,
     showToast,
   } = useApp();
+
+  const {
+    economy,
+    equippedBadge,
+    equippedBadges,
+    setProfileBadgeSlot,
+    favoriteBadges,
+    ownedCount,
+    totalBadgesCount,
+    completionPercentage,
+    rarityCounts,
+    unlockedFrames,
+    equipBadge,
+    unequipBadge,
+    toggleFavoriteBadge,
+  } = useEmberEconomy();
 
   const [name, setName] = useState(user?.name || 'Aarav Sharma');
   const [statusMessage, setStatusMessage] = useState(user?.statusMessage || '');
@@ -93,34 +124,91 @@ export const SettingsPage: React.FC = () => {
 
       {/* STUDENT PROFILE CARD */}
       <div className="p-6 rounded-2xl bg-white border border-[#E5E3DC] shadow-xs space-y-5">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#E5E3DC]">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-full bg-[#FAF9F5] border border-[#E5E3DC] overflow-hidden flex items-center justify-center font-bold text-lg text-[#F97316]">
-              {user?.avatarUrl ? (
-                <img src={user.avatarUrl} alt={user.name} className="w-full h-full object-cover" />
-              ) : (
-                user?.name.charAt(0) || 'A'
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-4 border-b border-[#E5E3DC]">
+          <div className="flex items-center gap-3.5">
+            {/* Avatar with equipped badge aura */}
+            <div className="relative">
+              <div className="w-14 h-14 rounded-full bg-[#FAF9F5] border-2 border-[#E5E3DC] overflow-hidden flex items-center justify-center font-bold text-lg text-[#F97316] shrink-0">
+                {user?.avatarUrl ? (
+                  <img src={user.avatarUrl} alt={user.name} className="w-full h-full object-cover" />
+                ) : (
+                  user?.name.charAt(0) || 'A'
+                )}
+              </div>
+              {/* Equipped badge miniature attached to avatar */}
+              {equippedBadge && (
+                <div
+                  className="absolute -bottom-1 -right-1"
+                  title={`Equipped Badge: ${equippedBadge.name} (${equippedBadge.rarity})`}
+                >
+                  <BadgeArtwork badge={equippedBadge} size="sm" />
+                </div>
               )}
             </div>
+
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-base font-bold text-[#171916]">{user?.name}</h2>
+                <h2 className="text-base font-extrabold text-[#171916]">{user?.name}</h2>
                 <span className="font-mono text-xs font-bold text-[#F97316]">
                   {user?.username}
                 </span>
+                {equippedBadge && (
+                  <span
+                    className="text-[10px] font-bold px-2 py-0.5 rounded-full border hidden sm:inline-block"
+                    style={{
+                      color: RARITY_DETAILS[equippedBadge.rarity].color,
+                      borderColor: `${RARITY_DETAILS[equippedBadge.rarity].color}60`,
+                      backgroundColor: `${RARITY_DETAILS[equippedBadge.rarity].color}15`,
+                    }}
+                  >
+                    {equippedBadge.name}
+                  </span>
+                )}
               </div>
               <div className="text-xs text-[#555952]">{user?.college} · {user?.email}</div>
+
+              {/* 5 Equipped Profile Badges Row (Min & Max 5 visible on profile) */}
+              <div className="flex flex-wrap items-center gap-2 mt-2 pt-1 border-t border-[#E5E3DC]/60">
+                <span className="text-[10px] uppercase font-bold text-[#737871]">
+                  Profile Badges (5):
+                </span>
+                <UserBadgesRow
+                  userId={user?.userId}
+                  badges={equippedBadges}
+                  size="sm"
+                  showLabels={true}
+                />
+              </div>
+
+              {/* Badges collected & completion stats */}
+              <div className="flex items-center gap-3 text-[11px] text-[#737871] mt-1.5">
+                <span className="font-semibold text-[#171916]">
+                  {ownedCount} / {totalBadgesCount} Badges Collected
+                </span>
+                <span>·</span>
+                <span className="font-mono font-bold text-[#F97316]">
+                  {completionPercentage}% Completion
+                </span>
+              </div>
             </div>
           </div>
 
-          <span className={`text-xs font-bold px-3 py-1 rounded-full flex items-center gap-1.5 self-start sm:self-center ${
-            user?.verificationStatus === 'verified'
-              ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-              : 'bg-amber-50 text-amber-800 border border-amber-200'
-          }`}>
-            <ShieldCheck className="w-4 h-4" />
-            <span className="capitalize">{user?.verificationStatus?.replace('_', ' ')}</span>
-          </span>
+          <div className="flex flex-wrap items-center gap-2.5 self-start lg:self-center">
+            {/* EMBER Currency Balance Display */}
+            <div className="px-3 py-1.5 rounded-xl bg-[#FFF8F5] border border-orange-200">
+              <EmberToken amount={economy.emberBalance} size="sm" />
+            </div>
+
+            {/* Verification status pill */}
+            <span className={`text-xs font-bold px-3 py-1.5 rounded-xl flex items-center gap-1.5 ${
+              user?.verificationStatus === 'verified'
+                ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                : 'bg-amber-50 text-amber-800 border border-amber-200'
+            }`}>
+              <ShieldCheck className="w-4 h-4" />
+              <span className="capitalize">{user?.verificationStatus?.replace('_', ' ')}</span>
+            </span>
+          </div>
         </div>
 
         <form onSubmit={handleSaveProfile} className="space-y-4">
@@ -233,6 +321,201 @@ export const SettingsPage: React.FC = () => {
             </button>
           </div>
         </form>
+      </div>
+
+      {/* SECTION: 5 PROFILE BADGE SLOTS (Min & Max 5 Visible on Profile) */}
+      <div className="p-6 rounded-2xl bg-white border border-[#E5E3DC] shadow-xs space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#E5E3DC]">
+          <div>
+            <div className="flex items-center gap-2 text-xs font-bold text-[#171916]">
+              <Award className="w-4 h-4 text-[#F97316]" />
+              <span>Active 5-Badge Profile Loadout (Min & Max 5 Badges Visible)</span>
+            </div>
+            <p className="text-xs text-[#555952] mt-0.5">
+              Exactly 5 badges are displayed across your student profile, carpools, campus events, and class rankings.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Link
+              to="/badges"
+              className="px-3.5 py-1.5 rounded-xl bg-[#FAF9F5] hover:bg-[#F2EFE9] text-xs font-bold text-[#171916] border border-[#E5E3DC] transition-colors flex items-center gap-1.5 cursor-pointer"
+            >
+              <Layers className="w-3.5 h-3.5 text-[#F97316]" />
+              <span>Badge Catalogue</span>
+            </Link>
+            <Link
+              to="/crates"
+              className="px-3.5 py-1.5 rounded-xl bg-[#F97316] hover:bg-[#EA580C] text-xs font-bold text-white transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs"
+            >
+              <Box className="w-3.5 h-3.5" />
+              <span>Crate Shop</span>
+            </Link>
+          </div>
+        </div>
+
+        {/* 5 Profile Badge Slots Grid */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-[#171916]">
+              Equipped 5 Profile Slots (Visible Everywhere)
+            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] text-[#737871]">Live Preview:</span>
+              <UserBadgesRow badges={equippedBadges} size="sm" showLabels={false} />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+            {equippedBadges.map((badge, slotIdx) => {
+              const rarity = RARITY_DETAILS[badge.rarity];
+              return (
+                <div
+                  key={`${badge.id}-${slotIdx}`}
+                  className="p-3.5 rounded-2xl bg-[#FAF9F5] border border-[#E5E3DC] hover:border-[#F97316] flex flex-col items-center text-center justify-between gap-2.5 transition-all shadow-2xs group relative"
+                  style={{
+                    borderTop: `3px solid ${rarity.color}`,
+                  }}
+                >
+                  <div className="w-full flex items-center justify-between text-[10px] text-[#737871] font-mono">
+                    <span className="font-bold text-[#171916]">Slot {slotIdx + 1}</span>
+                    <span
+                      className="font-bold px-1.5 py-0.2 rounded"
+                      style={{ color: rarity.color, backgroundColor: `${rarity.color}15` }}
+                    >
+                      {badge.rarity}
+                    </span>
+                  </div>
+
+                  <div className="p-2 rounded-xl" style={{ backgroundColor: `${rarity.color}10` }}>
+                    <BadgeArtwork badge={badge} size="lg" />
+                  </div>
+
+                  <div className="w-full">
+                    <div className="text-xs font-extrabold text-[#171916] truncate" title={badge.name}>
+                      {badge.name}
+                    </div>
+                    <div className="text-[10px] text-[#737871] line-clamp-2 mt-0.5 leading-tight">
+                      {badge.description}
+                    </div>
+                  </div>
+
+                  <Link
+                    to="/badges"
+                    className="w-full py-1 text-[11px] font-bold text-[#F97316] hover:bg-orange-50 rounded-lg border border-orange-200 transition-colors block text-center"
+                  >
+                    Swap Badge
+                  </Link>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Favorite Badges Showcase (Up to 6) */}
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-bold text-[#171916] flex items-center gap-1.5">
+              <Star className="w-3.5 h-3.5 text-amber-500 fill-amber-500" />
+              <span>Favorite Badges Showcase ({favoriteBadges.length} of 6 Pinned)</span>
+            </span>
+            <span className="text-[11px] text-[#737871]">Pinned to public profile</span>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            {favoriteBadges.map((badge) => (
+              <div
+                key={badge.id}
+                className="relative p-3 rounded-2xl bg-[#FAF9F5] border border-[#E5E3DC] flex flex-col items-center text-center group"
+              >
+                <BadgeArtwork badge={badge} size="md" />
+                <span className="text-xs font-bold text-[#171916] truncate w-full mt-2">
+                  {badge.name}
+                </span>
+                <span
+                  className="text-[9px] font-bold uppercase mt-0.5"
+                  style={{ color: RARITY_DETAILS[badge.rarity].color }}
+                >
+                  {badge.rarity}
+                </span>
+
+                <button
+                  onClick={() => toggleFavoriteBadge(badge.id)}
+                  className="mt-2 text-[10px] text-neutral-400 hover:text-rose-600 font-semibold cursor-pointer transition-colors"
+                  title="Remove from showcase"
+                >
+                  Unpin
+                </button>
+              </div>
+            ))}
+
+            {Array.from({ length: Math.max(0, 6 - favoriteBadges.length) }).map((_, idx) => (
+              <Link
+                key={`empty_${idx}`}
+                to="/badges"
+                className="p-3 rounded-2xl border-2 border-dashed border-[#D7D4CB] hover:border-[#F97316] flex flex-col items-center justify-center text-center min-h-[120px] text-[#737871] hover:text-[#F97316] transition-colors"
+              >
+                <div className="w-8 h-8 rounded-xl bg-neutral-100 flex items-center justify-center text-neutral-400 mb-1">
+                  +
+                </div>
+                <span className="text-[10px] font-bold">Empty Slot</span>
+                <span className="text-[9px] text-neutral-400">Pin badge</span>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* SECTION: COLLECTION COMPLETION & RARITY TIERS */}
+      <div className="p-6 rounded-2xl bg-white border border-[#E5E3DC] shadow-xs space-y-5">
+        <div className="flex items-center justify-between pb-3 border-b border-[#E5E3DC]">
+          <div>
+            <h2 className="text-sm font-bold text-[#171916] flex items-center gap-1.5">
+              <Sparkles className="w-4 h-4 text-[#F97316]" />
+              <span>Collection Completion & Collector Frames</span>
+            </h2>
+            <div className="text-xs text-[#555952]">
+              Track your progress toward completing each rarity tier and unlocking profile frames.
+            </div>
+          </div>
+
+          <Link
+            to="/crates"
+            className="text-xs font-bold text-[#F97316] hover:underline flex items-center gap-1"
+          >
+            <span>Open Crates</span>
+            <Box className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+
+        {/* 5 Rarity Progress Bars */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+          {(['Common', 'Rare', 'Legendary', 'Mythical', 'Unreal'] as BadgeRarity[]).map((rarity) => {
+            const data = rarityCounts[rarity];
+            const percent = Number(((data.owned / data.total) * 100).toFixed(0));
+            const config = RARITY_DETAILS[rarity];
+
+            return (
+              <div key={rarity} className="p-3 rounded-xl bg-[#FAF9F5] border border-[#E5E3DC]">
+                <div className="flex items-center justify-between text-xs font-bold mb-1">
+                  <span style={{ color: config.color }}>{rarity}</span>
+                  <span className="font-mono text-[11px] text-[#171916]">
+                    {data.owned}/{data.total}
+                  </span>
+                </div>
+                <div className="w-full h-1.5 rounded-full bg-neutral-200 overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all duration-300"
+                    style={{ width: `${percent}%`, backgroundColor: config.color }}
+                  />
+                </div>
+                <div className="text-[10px] text-[#737871] font-mono mt-1 text-right">
+                  {percent}%
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
 
       {/* STUDENT ENROLLMENT VERIFICATION TOGGLE (Required by prompt) */}

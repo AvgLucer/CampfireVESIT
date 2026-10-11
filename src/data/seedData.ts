@@ -502,11 +502,11 @@ export const INITIAL_RIDES: Ride[] = [
     departureTime: '04:15 PM',
     departureDate: 'Today',
     totalSeats: 3,
-    availableSeats: 3,
+    availableSeats: 2,
     fareContribution: 30, // 30rs if in total there's 3 people
     vehicleInfo: 'Shared Auto-Rickshaw • MH 03 EN 4432',
     status: 'available',
-    notes: 'Leaving right from VESIT Campus to Kurla Station. 3 open seats at ₹30.',
+    notes: 'Leaving right from VESIT Campus to Kurla Station. 2 open passenger seats at ₹30 (3 sharing total).',
     createdAt: '2026-10-11T07:30:00Z',
   },
 ];

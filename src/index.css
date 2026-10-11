@@ -17,3 +17,33 @@
   border-radius: inherit;
   z-index: 10;
 }
+
+/* Rarity Animation Keyframes */
+@keyframes unrealShimmer {
+  0% {
+    box-shadow: 0 0 10px rgba(244, 63, 94, 0.4), inset 0 0 10px rgba(244, 63, 94, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 25px rgba(244, 63, 94, 0.8), inset 0 0 15px rgba(251, 113, 133, 0.4);
+  }
+  100% {
+    box-shadow: 0 0 10px rgba(244, 63, 94, 0.4), inset 0 0 10px rgba(244, 63, 94, 0.2);
+  }
+}
+
+@keyframes cosmicPulse {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(168, 85, 247, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 18px rgba(168, 85, 247, 0.65);
+  }
+}
+
+.badge-unreal-glow {
+  animation: unrealShimmer 3s infinite ease-in-out;
+}
+
+.badge-mythical-glow {
+  animation: cosmicPulse 4s infinite ease-in-out;
+}

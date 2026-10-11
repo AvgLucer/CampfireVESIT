@@ -12,6 +12,7 @@ import {
   School,
   Building,
 } from 'lucide-react';
+import { UserBadgesRow } from '../badges/UserBadgesRow';
 
 export const ProfileSwitcherModal: React.FC = () => {
   const {
@@ -174,6 +175,11 @@ export const ProfileSwitcherModal: React.FC = () => {
                         <span>💬 &ldquo;{p.statusMessage}&rdquo;</span>
                       </div>
                     )}
+
+                    {/* 5 Profile Badges */}
+                    <div className="mt-1.5 flex items-center gap-1.5">
+                      <UserBadgesRow userId={p.userId} size="xs" />
+                    </div>
                   </div>
                 </div>
 
