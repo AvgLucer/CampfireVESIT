@@ -71,6 +71,7 @@ export const RidesPage: React.FC = () => {
     cancelSeatRequest,
     respondToSeatRequest,
     showToast,
+    isFirebaseActive,
   } = useApp();
 
   const [activeTab, setActiveTab] = useState<'all_rides' | 'my_rides'>('all_rides');
@@ -243,10 +244,22 @@ export const RidesPage: React.FC = () => {
       {/* HEADER SECTION */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <div className="flex items-center gap-2 text-xs font-semibold text-[#737871] mb-1">
+          <div className="flex items-center gap-2 text-xs font-semibold text-[#737871] mb-1 flex-wrap">
             <span className="px-2 py-0.5 rounded-md bg-blue-50 text-blue-700 font-bold border border-blue-200">
               2 Stops Only: Kurla Station ⇄ VESIT Campus
             </span>
+            <span>·</span>
+            {isFirebaseActive ? (
+              <span className="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 font-bold border border-emerald-200 flex items-center gap-1.5 shadow-2xs">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span>Cloud Sync Live (Cross-Device)</span>
+              </span>
+            ) : (
+              <span className="px-2 py-0.5 rounded-md bg-neutral-100 text-[#737871] font-semibold border border-neutral-200 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
+                <span>Connecting Cloud DB...</span>
+              </span>
+            )}
             <span>·</span>
             <span>Live Co-Rider Rosters</span>
           </div>

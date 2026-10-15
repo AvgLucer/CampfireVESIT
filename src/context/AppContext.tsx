@@ -37,6 +37,16 @@ import {
 } from '../data/seedData';
 import { MiniMothAdapter } from '../services/authAdapter';
 import { testFirestoreConnection } from '../services/firebase';
+import {
+  seedInitialRidesIfEmpty,
+  subscribeToFirestoreRides,
+  subscribeToFirestoreSeatRequests,
+  addRideToFirestore,
+  addSeatRequestToFirestore,
+  cancelSeatRequestInFirestore,
+  respondToSeatRequestInFirestore,
+  resetFirestoreRides,
+} from '../services/ridesFirestoreService';
 
 interface ToastState {
   id: string;
@@ -189,11 +199,44 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [activeLocationFocus, setActiveLocationFocus] = useState<CampusLocation | null>(null);
   const [toasts, setToasts] = useState<ToastState[]>([]);
 
-  // Check Firebase connectivity on boot
+  // Check Firebase connectivity on boot and subscribe to real-time rides across all devices
   useEffect(() => {
     testFirestoreConnection().then(active => {
       setIsFirebaseActive(active);
+      if (active) {
+        seedInitialRidesIfEmpty();
+      }
     });
+
+    // Real-time synchronization for rides across any device
+    const unsubRides = subscribeToFirestoreRides(
+      (firestoreRides) => {
+        if (firestoreRides && firestoreRides.length > 0) {
+          setRides(firestoreRides);
+          setIsFirebaseActive(true);
+        }
+      },
+      (err) => {
+        console.warn('Real-time Firestore rides subscription notice:', err);
+      }
+    );
+
+    // Real-time synchronization for passenger seat requests across any device
+    const unsubRequests = subscribeToFirestoreSeatRequests(
+      (firestoreRequests) => {
+        if (firestoreRequests) {
+          setSeatRequests(firestoreRequests);
+        }
+      },
+      (err) => {
+        console.warn('Real-time Firestore seat requests subscription notice:', err);
+      }
+    );
+
+    return () => {
+      unsubRides();
+      unsubRequests();
+    };
   }, []);
 
   // Save changes to localStorage for demonstration resilience
@@ -318,7 +361,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     showToast('Subject deleted', 'info');
   }, [showToast]);
 
-  // RIDES ACTIONS
+  // RIDES ACTIONS (Cloud Firestore Persisted across all devices)
   const createRide = useCallback((rideData: Omit<Ride, 'id' | 'driverId' | 'driverName' | 'driverAvatar' | 'driverVerified' | 'createdAt' | 'status'>) => {
     if (!user) {
       showToast('Please sign in to publish a carpool', 'warning');
@@ -334,14 +377,21 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       status: 'available',
       createdAt: new Date().toISOString(),
     };
+
+    // Immediate optimistic update
     setRides(prev => [newRide, ...prev]);
+
+    // Persist to Cloud Firestore so it syncs instantly to all devices
+    addRideToFirestore(newRide).catch(err => {
+      console.warn('Notice saving ride to Firestore:', err);
+    });
 
     // Create activity notification
     const notif: NotificationItem = {
       id: `notif_${Date.now()}`,
       userId: user.userId,
       title: 'Carpool Published',
-      message: `Your ride from ${newRide.origin} to ${newRide.destination} is now live with ${newRide.availableSeats} open seats.`,
+      message: `Your ride from ${newRide.origin} to ${newRide.destination} is now live across devices with ${newRide.availableSeats} open seats.`,
       type: 'ride',
       link: '/rides',
       isRead: false,
@@ -349,7 +399,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     };
     setNotifications(prev => [notif, ...prev]);
 
-    showToast('Your carpool ride has been published to the campus board!', 'success');
+    showToast('Your carpool ride has been published live across all devices!', 'success');
   }, [user, showToast]);
 
   const requestSeat = useCallback((rideId: string, seats: number = 1): boolean => {
@@ -393,14 +443,20 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       updatedAt: new Date().toISOString(),
     };
 
+    // Immediate optimistic update
     setSeatRequests(prev => [newRequest, ...prev]);
+
+    // Persist to Cloud Firestore so driver receives it on any device in real time
+    addSeatRequestToFirestore(newRequest).catch(err => {
+      console.warn('Notice saving seat request to Firestore:', err);
+    });
 
     // Add notification
     const notif: NotificationItem = {
       id: `notif_${Date.now()}`,
       userId: user.userId,
       title: 'Seat Request Sent',
-      message: `Your seat request for ${targetRide.driverName}'s ride has been sent.`,
+      message: `Your seat request for ${targetRide.driverName}'s ride has been broadcast.`,
       type: 'ride',
       link: '/rides',
       isRead: false,
@@ -414,12 +470,18 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
   const cancelSeatRequest = useCallback((requestId: string) => {
     setSeatRequests(prev => prev.filter(r => r.id !== requestId));
+    // Remove from Cloud Firestore
+    cancelSeatRequestInFirestore(requestId).catch(err => {
+      console.warn('Notice removing seat request from Firestore:', err);
+    });
     showToast('Seat request cancelled', 'info');
   }, [showToast]);
 
   const respondToSeatRequest = useCallback((requestId: string, status: 'accepted' | 'declined') => {
     const req = seatRequests.find(r => r.id === requestId);
     if (!req) return;
+
+    let updatedAvailable: number | undefined;
 
     if (status === 'accepted') {
       // Concurrency and seat count guard
@@ -430,12 +492,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
 
       // Decrement available seats
-      const updatedAvailable = ride.availableSeats - req.seatsRequested;
+      updatedAvailable = ride.availableSeats - req.seatsRequested;
       setRides(prev => prev.map(r => {
         if (r.id === req.rideId) {
           return {
             ...r,
-            availableSeats: updatedAvailable,
+            availableSeats: updatedAvailable!,
             status: updatedAvailable === 0 ? 'full' : r.status,
           };
         }
@@ -444,6 +506,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
 
     setSeatRequests(prev => prev.map(r => r.id === requestId ? { ...r, status, updatedAt: new Date().toISOString() } : r));
+
+    // Update in Cloud Firestore so all devices see the new seat count and request status
+    respondToSeatRequestInFirestore(requestId, status, req.rideId, updatedAvailable).catch(err => {
+      console.warn('Notice updating seat request in Firestore:', err);
+    });
 
     // Notify passenger
     const notif: NotificationItem = {
@@ -747,6 +814,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setSubjects(INITIAL_SUBJECTS);
     setRides(INITIAL_RIDES);
     setSeatRequests(INITIAL_SEAT_REQUESTS);
+    resetFirestoreRides().catch(err => console.warn('Notice resetting Firestore rides:', err));
     setChallenges(INITIAL_CHALLENGES);
     setParticipations(INITIAL_PARTICIPATIONS);
     setLeaderboard(INITIAL_LEADERBOARD);
@@ -755,7 +823,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setLearningSessions(INITIAL_LEARNING_SESSIONS);
     setCreditTransactions(INITIAL_TRANSACTIONS);
     setNotifications(INITIAL_NOTIFICATIONS);
-    showToast('Demo data restored to initial baseline successfully!', 'success');
+    showToast('Demo data restored to initial baseline successfully across cloud & local storage!', 'success');
   }, [showToast]);
 
   return (

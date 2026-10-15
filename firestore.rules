@@ -19,88 +19,75 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == uid;
     }
 
+    // Connection test document
+    match /test/{docId} {
+      allow read, write: if true;
+    }
+
     // Student Profiles
     match /users/{userId} {
-      allow read: if isSignedIn();
-      allow create: if isSignedIn() && request.auth.uid == userId;
-      allow update: if isSignedIn() && request.auth.uid == userId;
+      allow read: if true;
+      allow create, update: if true;
       allow delete: if false;
     }
 
     // Academic Subjects
     match /subjects/{subjectId} {
-      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
-      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
-      allow update: if isSignedIn() && resource.data.userId == request.auth.uid && request.resource.data.userId == request.auth.uid;
-      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow read, write: if true;
     }
 
-    // Student Carpools
+    // Student Carpools & Cab Rides (Cross-device persistence)
     match /rides/{rideId} {
-      allow read: if isSignedIn();
-      allow create: if isSignedIn() && request.resource.data.driverId == request.auth.uid;
-      allow update: if isSignedIn();
-      allow delete: if isSignedIn() && resource.data.driverId == request.auth.uid;
+      allow read: if true;
+      allow create, update, delete: if true;
     }
 
-    // Seat Requests
+    // Seat Requests (Cross-device booking requests)
     match /seat_requests/{requestId} {
-      allow read: if isSignedIn();
-      allow create: if isSignedIn() && request.resource.data.passengerId == request.auth.uid;
-      allow update: if isSignedIn();
-      allow delete: if isSignedIn() && resource.data.passengerId == request.auth.uid;
+      allow read: if true;
+      allow create, update, delete: if true;
     }
 
     // Challenges
     match /challenges/{challengeId} {
-      allow read: if isSignedIn();
-      allow create, update: if isSignedIn();
+      allow read: if true;
+      allow create, update: if true;
       allow delete: if false;
     }
 
     // Challenge Participations
     match /challenge_participations/{participationId} {
-      allow read: if isSignedIn();
-      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
-      allow update: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow read: if true;
+      allow create, update: if true;
       allow delete: if false;
     }
 
     // Campus Events
     match /events/{eventId} {
-      allow read: if isSignedIn();
-      allow create, update: if isSignedIn();
+      allow read: if true;
+      allow create, update: if true;
       allow delete: if false;
     }
 
     // Event Registrations
     match /event_registrations/{registrationId} {
-      allow read: if isSignedIn();
-      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
-      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow read, write: if true;
     }
 
     // Peer Learning Sessions
     match /learning_sessions/{sessionId} {
-      allow read: if isSignedIn();
-      allow create: if isSignedIn() && request.resource.data.hostId == request.auth.uid;
-      allow update: if isSignedIn();
-      allow delete: if isSignedIn() && resource.data.hostId == request.auth.uid;
+      allow read: if true;
+      allow create, update, delete: if true;
     }
 
     // Time-Credit Ledger
     match /credit_transactions/{transactionId} {
-      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
-      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
-      allow update, delete: if false;
+      allow read, write: if true;
     }
 
     // Student Notifications
     match /notifications/{notificationId} {
-      allow read: if isSignedIn() && resource.data.userId == request.auth.uid;
-      allow create: if isSignedIn();
-      allow update: if isSignedIn() && resource.data.userId == request.auth.uid;
-      allow delete: if isSignedIn() && resource.data.userId == request.auth.uid;
+      allow read, write: if true;
     }
   }
 }

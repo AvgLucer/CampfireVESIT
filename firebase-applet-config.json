@@ -1,12 +1,12 @@
 {
-  "projectId": "YOUR_FIREBASE_PROJECT_ID",
-  "appId": "YOUR_FIREBASE_APP_ID",
-  "apiKey": "YOUR_FIREBASE_API_KEY",
-  "authDomain": "YOUR_FIREBASE_AUTH_DOMAIN",
-  "firestoreDatabaseId": "YOUR_FIRESTORE_DATABASE_ID",
-  "storageBucket": "YOUR_FIREBASE_STORAGE_BUCKET",
-  "messagingSenderId": "YOUR_FIREBASE_MESSAGING_SENDER_ID",
-  "measurementId": "YOUR_GOOGLE_ANALYTICS_MEASUREMENT_ID",
-  "oAuthClientId": "YOUR_GOOGLE_OAUTH_CLIENT_ID",
-  "recaptchaSiteKey": "YOUR_RECAPTCHA_SITE_KEY"
+  "projectId": "hip-sanctuary-1k7s0",
+  "appId": "1:27717480851:web:4f084745fa40fc6a407866",
+  "apiKey": "AIzaSyBneH4tKC6MoXHwSnuYnyfv2VVXdBfAk1Q",
+  "authDomain": "hip-sanctuary-1k7s0.firebaseapp.com",
+  "firestoreDatabaseId": "ai-studio-232219a3-139f-40bb-8d6d-fa499d643a14",
+  "storageBucket": "hip-sanctuary-1k7s0.firebasestorage.app",
+  "messagingSenderId": "27717480851",
+  "measurementId": "",
+  "oAuthClientId": "27717480851-dlfj1hg9o0dei2glmb0pljafn100faqr.apps.googleusercontent.com",
+  "recaptchaSiteKey": ""
 }
