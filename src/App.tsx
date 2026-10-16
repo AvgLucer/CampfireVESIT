@@ -35,7 +35,14 @@ export default function App() {
           <AppLayout>
             <Routes>
               <Route path="/login" element={<LoginPage />} />
-              <Route path="/landing" element={<LandingPage />} />
+              <Route
+                path="/landing"
+                element={
+                  <ProtectedRoute>
+                    <LandingPage />
+                  </ProtectedRoute>
+                }
+              />
               <Route
                 path="/"
                 element={

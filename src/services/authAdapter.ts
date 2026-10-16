@@ -87,31 +87,41 @@ export const MiniMothAdapter = {
     const regex = /^20(\d{2})\.([a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)@ves\.ac\.in$/i;
     const match = cleanEmail.match(regex);
 
-    if (!match) {
+    if (match) {
+      const yearSuffix = match[1];
+      const fullYear = `20${yearSuffix}`;
+      const rawName = match[2];
+      const rawSurname = match[3];
+
+      const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+      const formattedName = capitalize(rawName);
+      const formattedSurname = capitalize(rawSurname);
+      const fullName = `${formattedName} ${formattedSurname}`;
+      const username = `@${rawName.toLowerCase()}${rawSurname.toLowerCase()}`;
+
       return {
-        isValid: false,
-        errorMessage: 'Student email must follow the official format: 20XX.name.surname@ves.ac.in (e.g., 2026.aarav.sharma@ves.ac.in).',
+        isValid: true,
+        year: fullYear,
+        name: formattedName,
+        surname: formattedSurname,
+        fullName,
+        username,
       };
     }
 
-    const yearSuffix = match[1];
-    const fullYear = `20${yearSuffix}`;
-    const rawName = match[2];
-    const rawSurname = match[3];
-
+    // Any other official @ves.ac.in institutional email
+    const localPart = cleanEmail.split('@')[0];
+    const cleanLocal = localPart.replace(/[^a-zA-Z0-9]/g, ' ').trim();
+    const parts = cleanLocal.split(/\s+/).filter(Boolean);
     const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-    const formattedName = capitalize(rawName);
-    const formattedSurname = capitalize(rawSurname);
-    const fullName = `${formattedName} ${formattedSurname}`;
-    const username = `@${rawName.toLowerCase()}${rawSurname.toLowerCase()}`;
+    const formattedName = parts.length > 0 ? parts.map(capitalize).join(' ') : 'VESIT Member';
 
     return {
       isValid: true,
-      year: fullYear,
+      year: '2026',
       name: formattedName,
-      surname: formattedSurname,
-      fullName,
-      username,
+      fullName: formattedName,
+      username: `@${localPart.replace(/[^a-zA-Z0-9_]/g, '') || 'ves_user'}`,
     };
   },
 

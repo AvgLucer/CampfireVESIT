@@ -207,25 +207,29 @@ export function subscribeToFirestoreApplications(
 
 /**
  * Recursively strips keys with undefined values so that Firestore's setDoc/updateDoc
- * does not throw "Unsupported field value: undefined".
+ * never throws "Unsupported field value: undefined".
  */
 export function cleanFirestoreData<T>(obj: T): T {
   if (obj === null || obj === undefined) {
     return obj;
   }
-  if (Array.isArray(obj)) {
-    return obj.map((item) => cleanFirestoreData(item)) as unknown as T;
-  }
-  if (typeof obj === 'object') {
-    const cleaned: Record<string, any> = {};
-    for (const [key, val] of Object.entries(obj)) {
-      if (val !== undefined) {
-        cleaned[key] = cleanFirestoreData(val);
-      }
+  try {
+    return JSON.parse(JSON.stringify(obj));
+  } catch {
+    if (Array.isArray(obj)) {
+      return obj.map((item) => cleanFirestoreData(item)) as unknown as T;
     }
-    return cleaned as T;
+    if (typeof obj === 'object') {
+      const cleaned: Record<string, any> = {};
+      for (const [key, val] of Object.entries(obj)) {
+        if (val !== undefined) {
+          cleaned[key] = cleanFirestoreData(val);
+        }
+      }
+      return cleaned as T;
+    }
+    return obj;
   }
-  return obj;
 }
 
 /**

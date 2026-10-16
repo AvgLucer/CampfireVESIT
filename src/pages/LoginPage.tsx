@@ -270,8 +270,8 @@ export const LoginPage: React.FC = () => {
               </h1>
               <p className="mt-1 text-xs sm:text-sm text-[#555952] dark:text-neutral-400">
                 {step === 'email'
-                  ? 'Sign in to access your classes, daily updates, carpools, challenges, and peer sessions.'
-                  : `Verification code sent to ${vesEmail}. Complete the verification to unlock the campus ecosystem.`}
+                  ? 'Compulsory Authentication Gate: An official @ves.ac.in email is required. Without this login, you cannot view the website.'
+                  : `6-Digit verification code generated for ${vesEmail}. Verify your PIN below to unlock the website.`}
               </p>
             </div>
 
@@ -288,10 +288,28 @@ export const LoginPage: React.FC = () => {
             {/* STEP 1: EMAIL ENTRY */}
             {step === 'email' && (
               <div className="p-6 sm:p-8 space-y-6">
+                {/* How We Bring It In Dev Explainer Banner */}
+                <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/10 via-orange-500/10 to-transparent border border-orange-200 dark:border-orange-900/60 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="w-6 h-6 rounded-lg bg-[#F97316] text-white flex items-center justify-center font-bold text-xs">
+                      ℹ️
+                    </span>
+                    <span className="text-xs font-bold text-[#171916] dark:text-neutral-100">
+                      How We Bring It In Dev Mode
+                    </span>
+                    <span className="text-[10px] font-mono font-bold bg-[#F97316] text-white px-1.5 py-0.2 rounded ml-auto">
+                      Demo Architecture
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-[#555952] dark:text-neutral-300 leading-relaxed">
+                    The <strong>@ves.ac.in</strong> email is strictly compulsory. In production, a secure 6-digit one-time PIN is sent to your official mailbox via college Google Workspace SMTP. In this dev environment, the 6-digit PIN is <strong>generated live on the next screen</strong> with an Auto-Fill button so you can test the access gate immediately!
+                  </p>
+                </div>
+
                 <form onSubmit={handleRequestPin} className="space-y-4">
                   <div>
                     <label className="block text-xs font-bold text-[#171916] dark:text-neutral-200 uppercase tracking-wider mb-2">
-                      Official VES Institutional Email <span className="text-[#F97316]">*</span>
+                      Official VES Institutional Email <span className="text-[#F97316]">* (Compulsory @ves.ac.in)</span>
                     </label>
                     <div className="relative">
                       <Mail className="absolute left-3.5 top-3.5 w-4 h-4 text-[#737871]" />
@@ -308,7 +326,7 @@ export const LoginPage: React.FC = () => {
                       />
                     </div>
                     <div className="mt-2 flex items-center justify-between text-[11px] text-[#737871] dark:text-neutral-400">
-                      <span>Must end with <strong className="text-[#F97316]">@ves.ac.in</strong></span>
+                      <span>Must end with <strong className="text-[#F97316]">@ves.ac.in</strong> (Required)</span>
                       <span className="font-mono">Format: 20XX.name.surname@ves.ac.in</span>
                     </div>
                   </div>
