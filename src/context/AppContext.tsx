@@ -185,8 +185,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserProfile | null>(() => {
-    const session = MiniMothAdapter.getCurrentSession();
-    return session || loadFromStorage<UserProfile>('user', INITIAL_USER);
+    return MiniMothAdapter.getCurrentSession();
   });
 
   const [subjects, setSubjects] = useState<Subject[]>(() => {

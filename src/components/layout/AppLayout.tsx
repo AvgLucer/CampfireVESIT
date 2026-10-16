@@ -18,8 +18,18 @@ interface AppLayoutProps {
 export const AppLayout: React.FC<AppLayoutProps> = ({ children }) => {
   const location = useLocation();
   const { user, openProfileSwitcher } = useApp();
-  const isLandingPage = location.pathname === '/';
+  const isLoginPage = location.pathname === '/login';
+  const isLandingPage = location.pathname === '/landing';
   const isAdmin = user?.role === 'admin';
+
+  if (isLoginPage) {
+    return (
+      <div className="min-h-screen bg-[#F7F6F2] dark:bg-neutral-950 flex flex-col font-sans">
+        <main className="flex-1 flex flex-col">{children}</main>
+        <ToastContainer />
+      </div>
+    );
+  }
 
   if (isLandingPage) {
     return (

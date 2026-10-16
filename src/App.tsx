@@ -1,8 +1,8 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { AppProvider } from './context/AppContext';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { AppProvider, useApp } from './context/AppContext';
 import { EmberEconomyProvider } from './context/EmberEconomyContext';
 import { AppLayout } from './components/layout/AppLayout';
+import { LoginPage } from './pages/LoginPage';
 import { LandingPage } from './pages/LandingPage';
 import { DashboardPage } from './pages/DashboardPage';
 import { AcademicsPage } from './pages/AcademicsPage';
@@ -17,6 +17,16 @@ import { CratesPage } from './pages/CratesPage';
 import { WalletPage } from './pages/WalletPage';
 import { DailyUpdatesPage } from './pages/DailyUpdatesPage';
 
+const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const { user } = useApp();
+  const location = useLocation();
+
+  if (!user) {
+    return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+  return <>{children}</>;
+};
+
 export default function App() {
   return (
     <BrowserRouter>
@@ -24,19 +34,112 @@ export default function App() {
         <EmberEconomyProvider>
           <AppLayout>
             <Routes>
-              <Route path="/" element={<LandingPage />} />
-              <Route path="/dashboard" element={<DashboardPage />} />
-              <Route path="/updates" element={<DailyUpdatesPage />} />
-              <Route path="/academics" element={<AcademicsPage />} />
-              <Route path="/rides" element={<RidesPage />} />
-              <Route path="/challenges" element={<ChallengesPage />} />
-              <Route path="/campus" element={<CampusGuidePage />} />
-              <Route path="/events" element={<EventsPage />} />
-              <Route path="/learning" element={<PeerLearningPage />} />
-              <Route path="/settings" element={<SettingsPage />} />
-              <Route path="/badges" element={<BadgesPage />} />
-              <Route path="/crates" element={<CratesPage />} />
-              <Route path="/wallet" element={<WalletPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/landing" element={<LandingPage />} />
+              <Route
+                path="/"
+                element={
+                  <ProtectedRoute>
+                    <DashboardPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <DashboardPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/updates"
+                element={
+                  <ProtectedRoute>
+                    <DailyUpdatesPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/academics"
+                element={
+                  <ProtectedRoute>
+                    <AcademicsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/rides"
+                element={
+                  <ProtectedRoute>
+                    <RidesPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/challenges"
+                element={
+                  <ProtectedRoute>
+                    <ChallengesPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/campus"
+                element={
+                  <ProtectedRoute>
+                    <CampusGuidePage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/events"
+                element={
+                  <ProtectedRoute>
+                    <EventsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/learning"
+                element={
+                  <ProtectedRoute>
+                    <PeerLearningPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/settings"
+                element={
+                  <ProtectedRoute>
+                    <SettingsPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/badges"
+                element={
+                  <ProtectedRoute>
+                    <BadgesPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/crates"
+                element={
+                  <ProtectedRoute>
+                    <CratesPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/wallet"
+                element={
+                  <ProtectedRoute>
+                    <WalletPage />
+                  </ProtectedRoute>
+                }
+              />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </AppLayout>

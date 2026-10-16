@@ -51,10 +51,38 @@ export const MiniMothAdapter = {
   /**
    * Validates official VES institutional email:
    * Format: 20XX.name.surname@ves.ac.in
-   * where only name, surname, and the year in 2000s (2000-2099) are variable
+   * where only name, surname, and the year in 2000s (2000-2099) are variable.
+   * Also supports institutional administrative accounts (e.g. admin@ves.ac.in).
    */
   validateVesEmail(email: string): VesEmailParseResult {
     const cleanEmail = email.trim().toLowerCase();
+
+    if (!cleanEmail) {
+      return {
+        isValid: false,
+        errorMessage: 'VESIT institutional email is required.',
+      };
+    }
+
+    if (!cleanEmail.endsWith('@ves.ac.in')) {
+      return {
+        isValid: false,
+        errorMessage: 'Email must be an official @ves.ac.in institutional address (e.g. 2026.name.surname@ves.ac.in).',
+      };
+    }
+
+    // Direct check for admin aliases
+    if (cleanEmail === 'admin@ves.ac.in' || cleanEmail === 'academic.council@ves.ac.in') {
+      return {
+        isValid: true,
+        year: '2020',
+        name: 'Dr. Nupur',
+        surname: 'Giri',
+        fullName: 'Dr. Nupur Giri',
+        username: '@nupurgiri_admin',
+      };
+    }
+
     // Regex matches 20 followed by 2 digits, a dot, name, a dot, surname, @ves.ac.in
     const regex = /^20(\d{2})\.([a-zA-Z0-9_-]+)\.([a-zA-Z0-9_-]+)@ves\.ac\.in$/i;
     const match = cleanEmail.match(regex);
@@ -62,7 +90,7 @@ export const MiniMothAdapter = {
     if (!match) {
       return {
         isValid: false,
-        errorMessage: 'Email must follow the official format: 20XX.name.surname@ves.ac.in (Only year in 2000s, name, and surname are negotiable).',
+        errorMessage: 'Student email must follow the official format: 20XX.name.surname@ves.ac.in (e.g., 2026.aarav.sharma@ves.ac.in).',
       };
     }
 
@@ -97,10 +125,10 @@ export const MiniMothAdapter = {
     }
 
     // Realistic demo network delay
-    await new Promise((resolve) => setTimeout(resolve, 350));
+    await new Promise((resolve) => setTimeout(resolve, 400));
 
-    // Dynamic 6-digit pin for this session
-    const demoPin = DEFAULT_DEMO_OTP;
+    // Dynamic 6-digit pin generated for this session
+    const demoPin = String(Math.floor(100000 + Math.random() * 900000));
 
     return {
       success: true,

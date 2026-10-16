@@ -23,10 +23,11 @@ import {
   Box,
   Award,
   Radio,
+  LogOut,
 } from 'lucide-react';
 
 export const Sidebar: React.FC = () => {
-  const { user, openProfileSwitcher, openStatusModal } = useApp();
+  const { user, openProfileSwitcher, openStatusModal, logout } = useApp();
   const { economy, equippedBadge, openWalletModal } = useEmberEconomy();
   const isAdmin = user?.role === 'admin';
 
@@ -175,14 +176,25 @@ export const Sidebar: React.FC = () => {
                 </div>
               )}
 
-              {/* Profile Switcher Trigger Button */}
-              <button
-                onClick={openProfileSwitcher}
-                className="w-full py-1.5 px-2 bg-[#FAF9F5] dark:bg-neutral-900 hover:bg-[#FFF8F5] border border-[#D7D4CB] dark:border-neutral-700 hover:border-[#F97316] text-[#171916] dark:text-neutral-200 hover:text-[#F97316] text-[11px] font-bold rounded-lg transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
-              >
-                <Users className="w-3 h-3 text-[#F97316]" />
-                <span>Switch Profile</span>
-              </button>
+              {/* Profile Switcher & Logout Buttons */}
+              <div className="flex items-center gap-1.5">
+                <button
+                  onClick={openProfileSwitcher}
+                  className="flex-1 py-1.5 px-2 bg-[#FAF9F5] dark:bg-neutral-900 hover:bg-[#FFF8F5] border border-[#D7D4CB] dark:border-neutral-700 hover:border-[#F97316] text-[#171916] dark:text-neutral-200 hover:text-[#F97316] text-[11px] font-bold rounded-lg transition-colors flex items-center justify-center gap-1 cursor-pointer"
+                  title="Simulate or switch profile"
+                >
+                  <Users className="w-3 h-3 text-[#F97316]" />
+                  <span>Switch</span>
+                </button>
+                <button
+                  onClick={logout}
+                  className="py-1.5 px-2.5 bg-rose-50 dark:bg-rose-950/40 hover:bg-rose-100 border border-rose-200 dark:border-rose-900 text-rose-700 dark:text-rose-400 text-[11px] font-bold rounded-lg transition-colors flex items-center justify-center gap-1 cursor-pointer"
+                  title="Sign out of CampFire"
+                >
+                  <LogOut className="w-3 h-3" />
+                  <span>Logout</span>
+                </button>
+              </div>
             </div>
           </>
         )}
