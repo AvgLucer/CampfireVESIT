@@ -34,6 +34,7 @@ export const Sidebar: React.FC = () => {
 
   const links = [
     { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+    { label: 'My Timetable', path: '/timetable', icon: Calendar, badgeCount: 'Live' },
     { label: 'Daily Updates', path: '/updates', icon: Radio, badgeCount: 'Live' },
     { label: 'Peer Learning', path: '/learning', icon: Users, badgeCount: '1-on-1' },
     { label: 'Badges & Crates', path: '/badges', icon: Layers, badgeCount: `${economy.ownedBadgeIds.length}/75` },

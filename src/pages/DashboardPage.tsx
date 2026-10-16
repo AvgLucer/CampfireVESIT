@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { useEmberEconomy } from '../context/EmberEconomyContext';
@@ -6,6 +6,14 @@ import { EmberToken } from '../components/common/EmberToken';
 import { BadgeArtwork } from '../components/badges/BadgeArtwork';
 import { UserBadgesRow } from '../components/badges/UserBadgesRow';
 import { calculateSemesterSgpa } from '../utils/academicCalculations';
+import {
+  getCurrentWeekday,
+  calculateLiveLectureState,
+  WEEKDAY_LABELS,
+  parseTimeToMinutes,
+  LUNCH_START_MINUTES,
+  LUNCH_END_MINUTES,
+} from '../utils/timetableCalculations';
 import {
   Clock,
   MapPin,
@@ -30,6 +38,8 @@ import {
   Award,
   Gift,
   Radio,
+  Coffee,
+  Plus,
 } from 'lucide-react';
 
 export const DashboardPage: React.FC = () => {
@@ -37,6 +47,7 @@ export const DashboardPage: React.FC = () => {
   const {
     user,
     lectures,
+    currentTime,
     subjects,
     rides,
     dailyUpdates,
@@ -67,15 +78,26 @@ export const DashboardPage: React.FC = () => {
   // Academic calculation
   const sgpaSummary = calculateSemesterSgpa(subjects);
 
-  const now = new Date();
-  const dateFormatted = now.toLocaleDateString('en-IN', {
+  const dateFormatted = currentTime.toLocaleDateString('en-US', {
     weekday: 'long',
     month: 'short',
     day: 'numeric',
     year: 'numeric',
   });
 
-  const nextLecture = lectures.find(l => l.status === 'in_progress') || lectures.find(l => l.status === 'upcoming') || lectures[0];
+  const currentWeekday = useMemo(() => getCurrentWeekday(currentTime), [currentTime]);
+
+  const todayLectures = useMemo(() => {
+    return lectures
+      .filter((l) => l.day === currentWeekday)
+      .sort((a, b) => parseTimeToMinutes(a.startTime) - parseTimeToMinutes(b.startTime));
+  }, [lectures, currentWeekday]);
+
+  const liveStatus = useMemo(() => {
+    return calculateLiveLectureState(todayLectures, currentTime);
+  }, [todayLectures, currentTime]);
+
+  const nextLecture = liveStatus.currentLecture || liveStatus.nextLecture || todayLectures[0];
   const isAdmin = user?.role === 'admin';
 
   const handleNavigateToLectureClassroom = (locationId?: string) => {
@@ -118,7 +140,7 @@ export const DashboardPage: React.FC = () => {
           <p className="text-xs sm:text-sm text-[#555952]">
             {isAdmin
               ? 'Institutional administration mode: monitoring student cohorts, academics, and carpool transit.'
-              : `Your campus, all in one place. You have ${lectures.filter(l => l.status !== 'completed').length} sessions scheduled today.`}
+              : `Your campus, all in one place. You have ${todayLectures.length} scheduled lecture${todayLectures.length === 1 ? '' : 's'} on ${WEEKDAY_LABELS[currentWeekday].name}.`}
           </p>
 
           {/* Student Status Message (Max 60 letters) with Edit Action */}
@@ -298,17 +320,25 @@ export const DashboardPage: React.FC = () => {
                 <span className="text-[10px] font-normal text-[#737871]">· Contextual Assistant</span>
               </div>
               <p className="text-xs text-[#555952] mt-0.5">
-                {nextLecture.status === 'in_progress' ? (
-                  <>You are in <strong>{nextLecture.subjectName}</strong> in {nextLecture.room}. Next up: Basic Electrical Engineering at 01:15 PM.</>
+                {liveStatus.state === 'IN_PROGRESS' && liveStatus.currentLecture ? (
+                  <>You are in <strong>{liveStatus.currentLecture.subject || liveStatus.currentLecture.subjectName}</strong> in {liveStatus.currentLecture.classroom || liveStatus.currentLecture.room || 'Classroom'}. {liveStatus.nextLecture ? `Next up: ${liveStatus.nextLecture.subject || liveStatus.nextLecture.subjectName} at ${liveStatus.nextLecture.startTime}.` : 'No more lectures after this today.'}</>
+                ) : liveStatus.nextLecture ? (
+                  <>Next lecture <strong>{liveStatus.nextLecture.subject || liveStatus.nextLecture.subjectName}</strong> begins at {liveStatus.nextLecture.startTime} in {liveStatus.nextLecture.classroom || liveStatus.nextLecture.room || 'Campus'}.</>
+                ) : nextLecture ? (
+                  <>Scheduled lecture: <strong>{nextLecture.subject || nextLecture.subjectName}</strong> at {nextLecture.startTime} in {nextLecture.classroom || nextLecture.room || 'Campus'}.</>
+                ) : liveStatus.state === 'LUNCH_BREAK' ? (
+                  <>It&rsquo;s <strong>Campus Lunch Break</strong> (12:30 PM – 1:30 PM). Grab a meal or unwind before afternoon sessions.</>
+                ) : liveStatus.state === 'COLLEGE_OVER' ? (
+                  <>All college hours are wrapped up for today! Plan tomorrow&rsquo;s timetable or explore campus events.</>
                 ) : (
-                  <>Next lecture <strong>{nextLecture.subjectName}</strong> begins at {nextLecture.startTime} in {nextLecture.room}.</>
+                  <>No lectures scheduled for today. Explore peer learning or plan ahead in <strong>My Timetable</strong>.</>
                 )}
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
-            {nextLecture.locationId && (
+            {nextLecture?.locationId && (
               <button
                 onClick={() => handleNavigateToLectureClassroom(nextLecture.locationId)}
                 className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-white border border-[#E5E3DC] text-[#171916] hover:bg-[#FAF9F5] transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs"
@@ -317,6 +347,13 @@ export const DashboardPage: React.FC = () => {
                 <span>Locate Room</span>
               </button>
             )}
+            <Link
+              to="/timetable"
+              className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-[#FAF9F5] border border-[#E5E3DC] text-[#171916] hover:bg-white transition-colors flex items-center gap-1 cursor-pointer shadow-2xs"
+            >
+              <Calendar className="w-3.5 h-3.5 text-[#F97316]" />
+              <span>Timetable</span>
+            </Link>
             <Link
               to="/rides"
               className="text-xs font-semibold px-3 py-1.5 rounded-lg bg-[#F97316] text-white hover:bg-[#EA580C] transition-colors flex items-center gap-1 cursor-pointer shadow-2xs"
@@ -456,97 +493,227 @@ export const DashboardPage: React.FC = () => {
         )}
       </div>
 
-      {/* Main 2-Column Split: Today's Schedule & Academic Pulse */}
+      {/* Main 2-Column Split: Today's Timetable & Academic Pulse */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Left Column (7 cols): Today's Lecture Schedule */}
+        {/* Left Column (7 cols): Today's Timetable Card */}
         <div className="lg:col-span-7 space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-lg font-bold text-[#171916] tracking-tight">Today's Schedule</h2>
-              <div className="text-xs text-[#737871]">Monday Lecture & Lab Timetable</div>
+              <div className="flex items-center gap-2">
+                <h2 className="text-lg font-bold text-[#171916] dark:text-neutral-100 tracking-tight flex items-center gap-2">
+                  <Calendar className="w-5 h-5 text-[#F97316]" />
+                  <span>Today&rsquo;s Timetable</span>
+                </h2>
+                <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-orange-100 dark:bg-orange-950/60 text-[#F97316] font-extrabold">
+                  {WEEKDAY_LABELS[currentWeekday].name}
+                </span>
+              </div>
+              <div className="text-xs text-[#737871]">{dateFormatted} · {todayLectures.length} scheduled sessions</div>
             </div>
+
             <Link
-              to="/campus"
-              className="text-xs font-semibold text-[#F97316] hover:underline flex items-center gap-1"
+              to="/timetable"
+              className="text-xs font-bold text-[#F97316] hover:underline flex items-center gap-1 group"
             >
-              <span>Campus Map</span>
-              <ChevronRight className="w-3.5 h-3.5" />
+              <span>View Full Timetable</span>
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
             </Link>
           </div>
 
-          <div className="space-y-3">
-            {lectures.map((lecture, idx) => {
-              const isCurrent = lecture.status === 'in_progress';
-              const isCompleted = lecture.status === 'completed';
-
-              return (
-                <div
-                  key={lecture.id}
-                  onClick={() => handleNavigateToLectureClassroom(lecture.locationId)}
-                  className={`p-4 rounded-xl border transition-all cursor-pointer ${
-                    isCurrent
-                      ? 'bg-white border-[#F97316] shadow-sm shadow-[#F97316]/10'
-                      : isCompleted
-                      ? 'bg-[#FAF9F5]/70 border-[#E5E3DC] opacity-75'
-                      : 'bg-white border-[#E5E3DC] hover:border-[#D7D4CB]'
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-start gap-3">
-                      {/* Timeline status indicator */}
-                      <div className="flex flex-col items-center mt-0.5">
-                        <div
-                          className={`w-3 h-3 rounded-full ${
-                            isCurrent
-                              ? 'bg-[#F97316] ring-4 ring-[#F97316]/20'
-                              : isCompleted
-                              ? 'bg-emerald-500'
-                              : 'bg-[#D7D4CB]'
-                          }`}
-                        />
-                        {idx !== lectures.length - 1 && (
-                          <div className="w-0.5 h-12 bg-[#E5E3DC] mt-1" />
-                        )}
-                      </div>
-
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="text-xs font-bold text-[#171916]">{lecture.subjectName}</span>
-                          <span className="text-[10px] font-mono text-[#737871]">({lecture.subjectCode})</span>
-                          {isCurrent && (
-                            <span className="text-[10px] font-bold text-[#F97316] uppercase tracking-wide">
-                              In Progress
-                            </span>
-                          )}
-                        </div>
-
-                        <div className="text-xs text-[#555952] mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
-                          <span className="flex items-center gap-1 font-mono tabular-nums">
-                            <Clock className="w-3 h-3 text-[#737871]" />
-                            {lecture.startTime} – {lecture.endTime}
-                          </span>
-                          <span className="flex items-center gap-1">
-                            <MapPin className="w-3 h-3 text-[#F97316]" />
-                            {lecture.room} · {lecture.building}
-                          </span>
-                        </div>
-
-                        <div className="text-[11px] text-[#737871] mt-1">
-                          Faculty: {lecture.faculty}
-                        </div>
-                      </div>
+          {/* Prominent Live Status Highlight Card */}
+          <div className="p-5 rounded-2xl bg-white dark:bg-neutral-900 border border-[#E5E3DC] dark:border-neutral-800 shadow-xs space-y-4">
+            {/* Live State Tracker Banner */}
+            {liveStatus.currentLecture ? (
+              <div className="p-4 rounded-xl bg-orange-50/80 dark:bg-orange-950/40 border-2 border-[#F97316] space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-[#F97316] text-white">
+                    <span className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
+                    <span>NOW</span>
+                  </span>
+                  <span className="text-xs font-mono font-bold text-[#EA580C] dark:text-orange-400">
+                    ⏳ {liveStatus.formattedTimeRemaining}
+                  </span>
+                </div>
+                <div className="text-base font-extrabold text-[#171916] dark:text-neutral-100">
+                  {liveStatus.currentLecture.subject || liveStatus.currentLecture.subjectName}
+                  {liveStatus.currentLecture.subjectCode && (
+                    <span className="text-xs font-mono font-bold text-[#737871] ml-2">
+                      ({liveStatus.currentLecture.subjectCode})
+                    </span>
+                  )}
+                </div>
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[#555952] dark:text-neutral-300 font-medium">
+                  <span className="flex items-center gap-1 font-mono">
+                    <Clock className="w-3.5 h-3.5 text-[#F97316]" />
+                    {liveStatus.currentLecture.startTime} – {liveStatus.currentLecture.endTime}
+                  </span>
+                  {(liveStatus.currentLecture.classroom || liveStatus.currentLecture.room) && (
+                    <span className="flex items-center gap-1">
+                      <MapPin className="w-3.5 h-3.5 text-[#F97316]" />
+                      Room: {liveStatus.currentLecture.classroom || liveStatus.currentLecture.room}
+                    </span>
+                  )}
+                  {(liveStatus.currentLecture.facultyName || liveStatus.currentLecture.faculty) && (
+                    <span className="flex items-center gap-1 text-[11px] text-[#737871]">
+                      Faculty: {liveStatus.currentLecture.facultyName || liveStatus.currentLecture.faculty}
+                    </span>
+                  )}
+                </div>
+              </div>
+            ) : liveStatus.state === 'LUNCH_BREAK' ? (
+              <div className="p-4 rounded-xl bg-amber-50 dark:bg-amber-950/50 border border-amber-300 dark:border-amber-800 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-amber-100 dark:bg-amber-900/60 text-amber-700 dark:text-amber-300 flex items-center justify-center font-bold">
+                    <Coffee className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-extrabold text-amber-900 dark:text-amber-200 uppercase tracking-wide">
+                      NOW — Campus Lunch Break
                     </div>
-
-                    <div className="text-right shrink-0">
-                      <span className="text-[11px] font-medium text-[#F97316] hover:underline flex items-center gap-0.5">
-                        <span>Directions</span>
-                        <ChevronRight className="w-3 h-3" />
-                      </span>
+                    <div className="text-xs text-amber-800 dark:text-amber-300 font-mono">
+                      12:30 PM – 1:30 PM · {liveStatus.formattedTimeRemaining}
                     </div>
                   </div>
                 </div>
-              );
-            })}
+              </div>
+            ) : liveStatus.nextLecture ? (
+              <div className="p-4 rounded-xl bg-[#FAF9F5] dark:bg-neutral-800 border border-[#E5E3DC] dark:border-neutral-700 space-y-1.5">
+                <div className="flex items-center justify-between text-[11px]">
+                  <span className="font-extrabold uppercase tracking-wider text-[#737871]">
+                    {liveStatus.state === 'UP_NEXT' ? 'UP NEXT' : 'FREE PERIOD — NEXT LECTURE'}
+                  </span>
+                  <span className="text-xs font-mono font-bold text-[#F97316]">
+                    {liveStatus.formattedTimeRemaining}
+                  </span>
+                </div>
+                <div className="text-sm font-extrabold text-[#171916] dark:text-neutral-100">
+                  {liveStatus.nextLecture.subject || liveStatus.nextLecture.subjectName}
+                </div>
+                <div className="flex items-center gap-3 text-xs text-[#555952] dark:text-neutral-400 font-mono">
+                  <span>{liveStatus.nextLecture.startTime} – {liveStatus.nextLecture.endTime}</span>
+                  {(liveStatus.nextLecture.classroom || liveStatus.nextLecture.room) && (
+                    <span>· Room: {liveStatus.nextLecture.classroom || liveStatus.nextLecture.room}</span>
+                  )}
+                </div>
+              </div>
+            ) : null}
+
+            {/* Permanent Lunch Break Banner */}
+            <div className="p-3.5 rounded-2xl bg-amber-50/90 dark:bg-amber-950/40 border-2 border-amber-300 dark:border-amber-800/80 flex items-center justify-between text-xs shadow-2xs">
+              <div className="flex items-center gap-2.5 text-amber-950 dark:text-amber-200">
+                <Coffee className="w-4 h-4 text-amber-600 shrink-0" />
+                <span className="font-extrabold uppercase tracking-wide">LUNCH BREAK | 12:30 PM–1:30 PM</span>
+              </div>
+              <span className="text-[10px] text-amber-800 dark:text-amber-400 font-mono font-bold bg-amber-100 dark:bg-amber-900/60 px-2 py-0.5 rounded-md">
+                Permanent Interval
+              </span>
+            </div>
+
+            {/* Today's Lectures Sequence */}
+            {todayLectures.length === 0 ? (
+              <div className="p-8 text-center space-y-3 border border-dashed border-[#E5E3DC] dark:border-neutral-800 rounded-2xl">
+                <Calendar className="w-8 h-8 text-[#737871] mx-auto opacity-50" />
+                <div className="text-sm font-extrabold text-[#171916] dark:text-neutral-100">
+                  No lectures scheduled today
+                </div>
+                <p className="text-xs text-[#737871] max-w-sm mx-auto">
+                  You have a free schedule today. Add a new lecture or study block to your timetable.
+                </p>
+                <Link
+                  to="/timetable"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#F97316] hover:bg-[#EA580C] text-white text-xs font-bold rounded-xl transition-colors shadow-2xs"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Customize Timetable</span>
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-2.5">
+                <div className="flex items-center justify-between text-xs font-bold text-[#737871] pt-1">
+                  <span>Today&rsquo;s Complete Schedule</span>
+                  <span className="font-mono">{liveStatus.remainingLecturesCount} remaining today</span>
+                </div>
+
+                {todayLectures.map((lecture, idx) => {
+                  const startMin = parseTimeToMinutes(lecture.startTime);
+                  const endMin = parseTimeToMinutes(lecture.endTime);
+                  const currentMin = currentTime.getHours() * 60 + currentTime.getMinutes();
+                  const isCurrent = startMin <= currentMin && currentMin < endMin;
+                  const isCompleted = endMin <= currentMin;
+
+                  return (
+                    <div
+                      key={lecture.id}
+                      onClick={() => handleNavigateToLectureClassroom(lecture.locationId)}
+                      className={`p-3.5 rounded-xl border transition-all cursor-pointer ${
+                        isCurrent
+                          ? 'bg-white dark:bg-neutral-800 border-[#F97316] shadow-sm shadow-[#F97316]/10'
+                          : isCompleted
+                          ? 'bg-[#FAF9F5]/70 dark:bg-neutral-900/60 border-[#E5E3DC] dark:border-neutral-800 opacity-75'
+                          : 'bg-white dark:bg-neutral-800 border-[#E5E3DC] dark:border-neutral-700 hover:border-[#D7D4CB]'
+                      }`}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="flex items-start gap-3">
+                          <div className="flex flex-col items-center mt-1">
+                            <div
+                              className={`w-3 h-3 rounded-full ${
+                                isCurrent
+                                  ? 'bg-[#F97316] ring-4 ring-[#F97316]/20'
+                                  : isCompleted
+                                  ? 'bg-emerald-500'
+                                  : 'bg-[#D7D4CB] dark:bg-neutral-600'
+                              }`}
+                            />
+                            {idx !== todayLectures.length - 1 && (
+                              <div className="w-0.5 h-8 bg-[#E5E3DC] dark:bg-neutral-700 mt-1" />
+                            )}
+                          </div>
+
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="text-xs font-bold text-[#171916] dark:text-neutral-100">
+                                {lecture.subject || lecture.subjectName}
+                              </span>
+                              {lecture.subjectCode && (
+                                <span className="text-[10px] font-mono text-[#737871]">
+                                  ({lecture.subjectCode})
+                                </span>
+                              )}
+                              {isCurrent && (
+                                <span className="text-[10px] font-bold text-[#F97316] uppercase tracking-wide">
+                                  In Progress
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="text-xs text-[#555952] dark:text-neutral-400 mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5">
+                              <span className="flex items-center gap-1 font-mono tabular-nums">
+                                <Clock className="w-3 h-3 text-[#737871]" />
+                                {lecture.startTime} – {lecture.endTime}
+                              </span>
+                              {(lecture.classroom || lecture.room) && (
+                                <span className="flex items-center gap-1">
+                                  <MapPin className="w-3 h-3 text-[#F97316]" />
+                                  {lecture.classroom || lecture.room}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="text-right shrink-0">
+                          <span className="text-[11px] font-medium text-[#F97316] hover:underline flex items-center gap-0.5">
+                            <span>Directions</span>
+                            <ChevronRight className="w-3 h-3" />
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
 

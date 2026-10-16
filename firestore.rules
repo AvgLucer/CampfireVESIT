@@ -36,6 +36,11 @@ service cloud.firestore {
       allow read, write: if true;
     }
 
+    // Personalized Student Timetable Lectures
+    match /lectures/{lectureId} {
+      allow read, write: if true;
+    }
+
     // Student Carpools & Cab Rides (Cross-device persistence)
     match /rides/{rideId} {
       allow read: if true;

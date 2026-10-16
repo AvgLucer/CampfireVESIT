@@ -21,6 +21,7 @@ import {
   Award,
   Layers,
   Coins,
+  Calendar,
 } from 'lucide-react';
 
 export const Navbar: React.FC = () => {
@@ -55,6 +56,7 @@ export const Navbar: React.FC = () => {
 
   const navLinks = [
     { label: 'Dashboard', path: '/dashboard' },
+    { label: 'Timetable', path: '/timetable' },
     { label: 'Daily Updates', path: '/updates' },
     { label: 'Peer Learning', path: '/learning' },
     { label: 'Academics', path: '/academics' },
@@ -265,6 +267,15 @@ export const Navbar: React.FC = () => {
 
                   {/* Actions */}
                   <div className="space-y-1">
+                    <Link
+                      to="/timetable"
+                      onClick={() => setIsProfileOpen(false)}
+                      className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-[#FAF9F5] dark:hover:bg-neutral-800 transition-colors text-[#171916] dark:text-neutral-200 font-semibold"
+                    >
+                      <Calendar className="w-4 h-4 text-[#F97316]" />
+                      <span>My Timetable (8:30–3:30)</span>
+                    </Link>
+
                     <Link
                       to="/badges"
                       onClick={() => setIsProfileOpen(false)}

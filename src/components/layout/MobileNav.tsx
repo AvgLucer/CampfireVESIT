@@ -1,13 +1,13 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Layers, GraduationCap, Car, Users, Box } from 'lucide-react';
+import { LayoutDashboard, Layers, GraduationCap, Car, Users, Calendar } from 'lucide-react';
 
 export const MobileNav: React.FC = () => {
   const links = [
     { label: 'Home', path: '/dashboard', icon: LayoutDashboard },
+    { label: 'Timetable', path: '/timetable', icon: Calendar },
     { label: 'Learn', path: '/learning', icon: Users },
-    { label: 'Badges & Crates', path: '/badges', icon: Layers },
-    { label: 'Rides', path: '/rides', icon: Car },
+    { label: 'Badges', path: '/badges', icon: Layers },
     { label: 'Academics', path: '/academics', icon: GraduationCap },
   ];
 

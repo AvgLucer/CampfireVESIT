@@ -64,18 +64,36 @@ export interface Subject {
   targetGrade?: string;
 }
 
+export type Weekday =
+  | 'monday'
+  | 'tuesday'
+  | 'wednesday'
+  | 'thursday'
+  | 'friday'
+  | 'saturday'
+  | 'sunday';
+
 export interface Lecture {
   id: string;
-  subjectCode: string;
-  subjectName: string;
-  faculty: string;
-  room: string;
-  building: string;
-  startTime: string; // "09:00 AM"
-  endTime: string;   // "10:00 AM"
-  dayOfWeek: string; // "Monday"
-  status: 'upcoming' | 'in_progress' | 'completed';
+  studentId: string;
+  day: Weekday;
+  subject: string;
+  subjectCode?: string;
+  startTime: string; // e.g. "08:30" or "08:30 AM"
+  endTime: string;   // e.g. "09:30" or "09:30 AM"
+  facultyName?: string;
+  classroom?: string;
+  building?: string;
   locationId?: string; // Corresponds to CampusLocation.id
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+  // Backward compatibility fields
+  subjectName?: string;
+  faculty?: string;
+  room?: string;
+  dayOfWeek?: string;
+  status?: 'upcoming' | 'in_progress' | 'completed';
 }
 
 export interface Ride {

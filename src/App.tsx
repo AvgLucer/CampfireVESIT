@@ -17,6 +17,7 @@ import { BadgesPage } from './pages/BadgesPage';
 import { WalletPage } from './pages/WalletPage';
 import { DailyUpdatesPage } from './pages/DailyUpdatesPage';
 import { FacultyPage } from './pages/FacultyPage';
+import { TimetablePage } from './pages/TimetablePage';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user } = useApp();
@@ -66,6 +67,14 @@ export default function App() {
                 element={
                   <ProtectedRoute>
                     <DailyUpdatesPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/timetable"
+                element={
+                  <ProtectedRoute>
+                    <TimetablePage />
                   </ProtectedRoute>
                 }
               />

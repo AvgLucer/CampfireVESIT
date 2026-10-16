@@ -68,6 +68,19 @@ import {
   submitApplicationToFirestore,
   reviewApplicationInFirestore,
 } from '../services/dailyUpdatesFirestoreService';
+import {
+  validateLectureSchedule,
+  parseTimeToMinutes,
+  minutesToFormatted12h,
+  WEEKDAY_LABELS,
+} from '../utils/timetableCalculations';
+import {
+  loadLocalTimetable,
+  saveLocalTimetable,
+  subscribeToFirestoreLectures,
+  saveLectureToFirestore,
+  deleteLectureInFirestore,
+} from '../services/timetableFirestoreService';
 
 interface ToastState {
   id: string;
@@ -158,6 +171,13 @@ interface AppContextType {
   markNotificationRead: (id: string) => void;
   markAllNotificationsRead: () => void;
 
+  // Timetable
+  currentTime: Date;
+  addLecture: (lectureData: Omit<Lecture, 'id' | 'createdAt' | 'updatedAt' | 'studentId'>) => Promise<{ success: boolean; error?: string }>;
+  updateLecture: (id: string, updates: Partial<Lecture>) => Promise<{ success: boolean; error?: string }>;
+  deleteLecture: (id: string) => Promise<{ success: boolean; error?: string }>;
+  resetTimetableToDefault: () => Promise<void>;
+
   // Demo state reset
   resetDemoData: () => void;
 }
@@ -195,7 +215,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     }
     return loaded;
   });
-  const [lectures] = useState<Lecture[]>(INITIAL_LECTURES);
+  const [lectures, setLectures] = useState<Lecture[]>(() => {
+    const studentId = MiniMothAdapter.getCurrentSession()?.userId || INITIAL_USER.userId;
+    const loaded = loadLocalTimetable(studentId);
+    return loaded && loaded.length > 0 ? loaded : INITIAL_LECTURES;
+  });
+  const [currentTime, setCurrentTime] = useState<Date>(new Date());
   const [rides, setRides] = useState<Ride[]>(() => {
     const loaded = loadFromStorage<Ride[]>('rides', INITIAL_RIDES);
     if (!Array.isArray(loaded) || loaded.length === 0 || loaded.some(r => r.origin.includes('Ghatkopar') || r.origin.includes('Vashi') || r.origin.includes('Dadar') || r.origin.includes('Thane'))) {
@@ -301,6 +326,50 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       unsubApplications();
     };
   }, []);
+
+  // EFFICIENT REACT TIMER: Updates current time every 30s and immediately on focus/visibility change
+  useEffect(() => {
+    const tick = () => setCurrentTime(new Date());
+    const timer = setInterval(tick, 30000); // 30 second tick
+
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible') {
+        tick();
+      }
+    };
+    window.addEventListener('visibilitychange', handleVisibility);
+    window.addEventListener('focus', tick);
+
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener('visibilitychange', handleVisibility);
+      window.removeEventListener('focus', tick);
+    };
+  }, []);
+
+  // TIMETABLE REAL-TIME & PROFILE SYNCHRONIZATION
+  useEffect(() => {
+    const studentId = user?.userId || 'stu_aarav_01';
+    const local = loadLocalTimetable(studentId);
+    if (local && local.length > 0) {
+      setLectures(local);
+    } else {
+      const fallback = studentId === 'stu_aarav_01' ? INITIAL_LECTURES : [];
+      setLectures(fallback);
+      if (fallback.length > 0) {
+        saveLocalTimetable(studentId, fallback);
+      }
+    }
+
+    // Subscribe to Firestore for real-time changes
+    const unsub = subscribeToFirestoreLectures(studentId, (items) => {
+      if (items && items.length > 0) {
+        setLectures(items);
+      }
+    });
+
+    return () => unsub();
+  }, [user?.userId]);
 
   // Save changes to localStorage for demonstration resilience
   useEffect(() => { if (user) saveToStorage('user', user); }, [user]);
@@ -425,6 +494,141 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setSubjects(prev => prev.filter(s => s.id !== id));
     showToast('Subject deleted', 'info');
   }, [showToast]);
+
+  // TIMETABLE ACTIONS (Personalized weekly timetable with validation & Cloud/Local sync)
+  const addLecture = useCallback(async (
+    lectureData: Omit<Lecture, 'id' | 'createdAt' | 'updatedAt' | 'studentId'>
+  ): Promise<{ success: boolean; error?: string }> => {
+    const studentId = user?.userId || 'stu_aarav_01';
+
+    const startMin = parseTimeToMinutes(lectureData.startTime);
+    const endMin = parseTimeToMinutes(lectureData.endTime);
+    const startStr = minutesToFormatted12h(startMin);
+    const endStr = minutesToFormatted12h(endMin);
+
+    const candidate = {
+      ...lectureData,
+      startTime: startStr || lectureData.startTime,
+      endTime: endStr || lectureData.endTime,
+      day: lectureData.day,
+      subject: lectureData.subject.trim(),
+    };
+
+    const validation = validateLectureSchedule(candidate, lectures);
+    if (!validation.isValid) {
+      showToast(validation.error || 'Invalid lecture schedule', 'error');
+      return { success: false, error: validation.error };
+    }
+
+    const now = new Date().toISOString();
+    const newLecture: Lecture = {
+      ...candidate,
+      id: `lec_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      studentId,
+      createdAt: now,
+      updatedAt: now,
+      subjectName: candidate.subject,
+      faculty: candidate.facultyName || '',
+      facultyName: candidate.facultyName || '',
+      room: candidate.classroom || '',
+      classroom: candidate.classroom || '',
+      dayOfWeek: candidate.day.charAt(0).toUpperCase() + candidate.day.slice(1),
+      status: 'upcoming',
+    };
+
+    const nextLectures = [...lectures, newLecture];
+    setLectures(nextLectures);
+    saveLocalTimetable(studentId, nextLectures);
+
+    saveLectureToFirestore(newLecture).catch(err => {
+      console.warn('Notice saving lecture to Firestore:', err);
+    });
+
+    showToast(`Added "${newLecture.subject}" to ${WEEKDAY_LABELS[newLecture.day].name}`, 'success');
+    return { success: true };
+  }, [user, lectures, showToast]);
+
+  const updateLecture = useCallback(async (
+    id: string,
+    updates: Partial<Lecture>
+  ): Promise<{ success: boolean; error?: string }> => {
+    const studentId = user?.userId || 'stu_aarav_01';
+    const target = lectures.find(l => l.id === id);
+    if (!target) {
+      return { success: false, error: 'Lecture not found' };
+    }
+
+    const candidateDay = updates.day || target.day;
+    const candidateSubject = (updates.subject || updates.subjectName || target.subject || target.subjectName || '').trim();
+    const candidateStartTime = updates.startTime ? minutesToFormatted12h(parseTimeToMinutes(updates.startTime)) : target.startTime;
+    const candidateEndTime = updates.endTime ? minutesToFormatted12h(parseTimeToMinutes(updates.endTime)) : target.endTime;
+
+    const candidate = {
+      day: candidateDay,
+      startTime: candidateStartTime,
+      endTime: candidateEndTime,
+      subject: candidateSubject,
+    };
+
+    const validation = validateLectureSchedule(candidate, lectures, id);
+    if (!validation.isValid) {
+      showToast(validation.error || 'Invalid lecture schedule', 'error');
+      return { success: false, error: validation.error };
+    }
+
+    const updatedLecture: Lecture = {
+      ...target,
+      ...updates,
+      subject: candidateSubject,
+      subjectName: candidateSubject,
+      day: candidateDay,
+      dayOfWeek: candidateDay.charAt(0).toUpperCase() + candidateDay.slice(1),
+      startTime: candidateStartTime,
+      endTime: candidateEndTime,
+      facultyName: updates.facultyName ?? updates.faculty ?? target.facultyName ?? target.faculty ?? '',
+      faculty: updates.facultyName ?? updates.faculty ?? target.facultyName ?? target.faculty ?? '',
+      classroom: updates.classroom ?? updates.room ?? target.classroom ?? target.room ?? '',
+      room: updates.classroom ?? updates.room ?? target.classroom ?? target.room ?? '',
+      updatedAt: new Date().toISOString(),
+    };
+
+    const nextLectures = lectures.map(l => (l.id === id ? updatedLecture : l));
+    setLectures(nextLectures);
+    saveLocalTimetable(studentId, nextLectures);
+
+    saveLectureToFirestore(updatedLecture).catch(err => {
+      console.warn('Notice updating lecture in Firestore:', err);
+    });
+
+    showToast(`Updated "${updatedLecture.subject}"`, 'success');
+    return { success: true };
+  }, [user, lectures, showToast]);
+
+  const deleteLecture = useCallback(async (
+    id: string
+  ): Promise<{ success: boolean; error?: string }> => {
+    const studentId = user?.userId || 'stu_aarav_01';
+    const target = lectures.find(l => l.id === id);
+    const subjectName = target?.subject || target?.subjectName || 'Lecture';
+
+    const nextLectures = lectures.filter(l => l.id !== id);
+    setLectures(nextLectures);
+    saveLocalTimetable(studentId, nextLectures);
+
+    deleteLectureInFirestore(id).catch(err => {
+      console.warn('Notice deleting lecture from Firestore:', err);
+    });
+
+    showToast(`Removed "${subjectName}" from timetable`, 'info');
+    return { success: true };
+  }, [user, lectures, showToast]);
+
+  const resetTimetableToDefault = useCallback(async (): Promise<void> => {
+    const studentId = user?.userId || 'stu_aarav_01';
+    setLectures(INITIAL_LECTURES);
+    saveLocalTimetable(studentId, INITIAL_LECTURES);
+    showToast('Reset timetable to baseline first-year schedule', 'info');
+  }, [user, showToast]);
 
   // RIDES ACTIONS (Cloud Firestore Persisted across all devices)
   const createRide = useCallback((rideData: Omit<Ride, 'id' | 'driverId' | 'driverName' | 'driverAvatar' | 'driverVerified' | 'createdAt' | 'status'>) => {
@@ -1144,6 +1348,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setUser(INITIAL_USER);
     MiniMothAdapter.saveSession(INITIAL_USER);
     setSubjects(INITIAL_SUBJECTS);
+    setLectures(INITIAL_LECTURES);
+    saveLocalTimetable(INITIAL_USER.userId, INITIAL_LECTURES);
     setRides(INITIAL_RIDES);
     setSeatRequests(INITIAL_SEAT_REQUESTS);
     resetFirestoreRides().catch(err => console.warn('Notice resetting Firestore rides:', err));
@@ -1167,6 +1373,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         isAuthenticated: user !== null,
         subjects,
         lectures,
+        currentTime,
         rides,
         seatRequests,
         challenges,
@@ -1208,6 +1415,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         addSubject,
         updateSubject,
         deleteSubject,
+        addLecture,
+        updateLecture,
+        deleteLecture,
+        resetTimetableToDefault,
         createRide,
         requestSeat,
         cancelSeatRequest,
