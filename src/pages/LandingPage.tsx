@@ -11,6 +11,7 @@ import {
   ShieldCheck,
   ArrowRight,
   Flame,
+  Radio,
   CheckCircle2,
   Clock,
   Sparkles,
@@ -186,17 +187,17 @@ export const LandingPage: React.FC = () => {
               </div>
             </div>
 
-            {/* 3. Challenges */}
+            {/* 3. Daily Campus Updates */}
             <div className="p-6 rounded-2xl bg-[#FAF9F5] border border-[#E5E3DC] space-y-3 hover:border-[#D7D4CB] transition-colors">
-              <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center">
-                <Trophy className="w-5 h-5" />
+              <div className="w-10 h-10 rounded-xl bg-amber-100 text-[#F97316] flex items-center justify-center">
+                <Radio className="w-5 h-5" />
               </div>
-              <h3 className="text-base font-bold text-[#171916]">Peer Challenges & Leaderboard</h3>
+              <h3 className="text-base font-bold text-[#171916]">Daily Campus Updates</h3>
               <p className="text-xs text-[#555952] leading-relaxed">
-                Participate in coding problems, campus explorations, and study streaks. Idempotent points ensure competitive integrity.
+                Stay updated with verified college notices, impromptu study sessions, lab seat openings, and live student updates.
               </p>
-              <div className="text-[11px] font-semibold text-amber-600 flex items-center gap-1 pt-1">
-                <span>Live class competition</span>
+              <div className="text-[11px] font-semibold text-[#F97316] flex items-center gap-1 pt-1">
+                <span>Verified student postings</span>
               </div>
             </div>
 
@@ -207,24 +208,24 @@ export const LandingPage: React.FC = () => {
               </div>
               <h3 className="text-base font-bold text-[#171916]">Interactive Campus Directory</h3>
               <p className="text-xs text-[#555952] leading-relaxed">
-                Never get lost looking for Lab 402 or the First-Aid room. Floor guides, opening hours, accessibility notes, and lecture classroom links.
+                Accurate floor and directional guide for VESIT Chembur's curved structure building, including Library, Auditorium, Canteen, and Offices.
               </p>
               <div className="text-[11px] font-semibold text-emerald-600 flex items-center gap-1 pt-1">
                 <span>Direct classroom navigation</span>
               </div>
             </div>
 
-            {/* 5. Campus Events */}
+            {/* 5. EMBER Token Economy & Badges */}
             <div className="p-6 rounded-2xl bg-[#FAF9F5] border border-[#E5E3DC] space-y-3 hover:border-[#D7D4CB] transition-colors">
-              <div className="w-10 h-10 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center">
-                <Calendar className="w-5 h-5" />
+              <div className="w-10 h-10 rounded-xl bg-orange-100 text-[#F97316] flex items-center justify-center">
+                <Flame className="w-5 h-5" />
               </div>
-              <h3 className="text-base font-bold text-[#171916]">Hackathons & Campus Events</h3>
+              <h3 className="text-base font-bold text-[#171916]">EMBER Economy & 75 Badges</h3>
               <p className="text-xs text-[#555952] leading-relaxed">
-                Discover technical hackathons like Genesis 2.0, cultural fests, and robotics showcases. 1-click RSVP with real venue seat tracking.
+                Earn EMBER tokens across campus interactions, claim daily supply crates, and collect up to 75 tier-ranked badges with custom artwork.
               </p>
-              <div className="text-[11px] font-semibold text-purple-600 flex items-center gap-1 pt-1">
-                <span>RSVP with capacity guards</span>
+              <div className="text-[11px] font-semibold text-[#F97316] flex items-center gap-1 pt-1">
+                <span>Campus gamification</span>
               </div>
             </div>
 
@@ -233,12 +234,12 @@ export const LandingPage: React.FC = () => {
               <div className="w-10 h-10 rounded-xl bg-rose-100 text-rose-600 flex items-center justify-center">
                 <Users className="w-5 h-5" />
               </div>
-              <h3 className="text-base font-bold text-[#171916]">Time-Credit Peer Mentorship</h3>
+              <h3 className="text-base font-bold text-[#171916]">1-on-1 Collaborative Whiteboard</h3>
               <p className="text-xs text-[#555952] leading-relaxed">
-                Teach a classmate to earn study time credits; spend credits to get tutoring on difficult mathematics or programming subjects.
+                Private PIN-based rooms for two students. Explain concepts, draw circuit diagrams, solve equations, and study together in real time.
               </p>
               <div className="text-[11px] font-semibold text-rose-600 flex items-center gap-1 pt-1">
-                <span>Double-entry ledger model</span>
+                <span>Real-time collaborative canvas</span>
               </div>
             </div>
           </div>

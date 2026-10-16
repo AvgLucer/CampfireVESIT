@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
+import { VesitCurvedBuildingMap } from '../components/campus/VesitCurvedBuildingMap';
 
 const campusLocIcon = L.divIcon({
   html: `<div style="background-color: #F97316; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(249,115,22,0.4); border: 3px solid white; font-size: 15px;">📍</div>`,
@@ -67,6 +68,7 @@ export const CampusGuidePage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selectedFloor, setSelectedFloor] = useState<string>('all');
+  const [mapViewMode, setMapViewMode] = useState<'blueprint' | 'satellite'>('blueprint');
 
   const [selectedLocation, setSelectedLocation] = useState<CampusLocation>(() => {
     return activeLocationFocus || locations[0];
@@ -468,44 +470,88 @@ export const CampusGuidePage: React.FC = () => {
           })}
         </div>
 
-        {/* Right Column (7 cols): Leaflet Interactive Map & Selected Details */}
+        {/* Right Column (7 cols): VESIT Curved Building Map & Selected Details */}
         <div className="lg:col-span-7 space-y-6 sm:space-y-8">
-          {/* Map Preview */}
-          <div className="rounded-3xl border border-[#E5E3DC] dark:border-neutral-800 overflow-hidden bg-white dark:bg-neutral-900 shadow-sm">
-            <div className="h-64 sm:h-80 w-full z-10">
-              {selectedLocation && (
-                <MapContainer
-                  center={selectedLocation.coords}
-                  zoom={17}
-                  scrollWheelZoom={false}
-                  className="h-full w-full"
-                >
-                  <TileLayer
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                  />
-                  <MapRecenter coords={selectedLocation.coords} />
-                  {locations.map((loc) => (
-                    <Marker
-                      key={loc.id}
-                      position={loc.coords}
-                      icon={campusLocIcon}
-                      eventHandlers={{
-                        click: () => setSelectedLocation(loc),
-                      }}
-                    >
-                      <Popup>
-                        <div className="text-xs font-bold">{loc.name}</div>
-                        <div className="text-[11px] text-[#555952] mt-0.5">
-                          {loc.floor} · {getOrientationCue(loc.id)}
-                        </div>
-                      </Popup>
-                    </Marker>
-                  ))}
-                </MapContainer>
-              )}
+          {/* Map View Mode Switcher */}
+          <div className="flex items-center justify-between bg-white dark:bg-neutral-900 p-2 rounded-2xl border border-[#E5E3DC] dark:border-neutral-800 shadow-2xs">
+            <span className="text-xs font-black text-[#171916] dark:text-neutral-100 pl-2 flex items-center gap-2">
+              <Compass className="w-4 h-4 text-[#F97316]" />
+              <span>Campus Map View:</span>
+            </span>
+            <div className="flex items-center gap-1.5 text-xs">
+              <button
+                type="button"
+                onClick={() => setMapViewMode('blueprint')}
+                className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${
+                  mapViewMode === 'blueprint'
+                    ? 'bg-[#F97316] text-white shadow-xs'
+                    : 'bg-[#FAF9F5] dark:bg-neutral-800 text-[#737871] hover:text-[#171916]'
+                }`}
+              >
+                🏛️ Curved Structure Building
+              </button>
+              <button
+                type="button"
+                onClick={() => setMapViewMode('satellite')}
+                className={`px-3 py-1.5 rounded-xl font-bold transition-all cursor-pointer ${
+                  mapViewMode === 'satellite'
+                    ? 'bg-[#171916] text-white dark:bg-neutral-100 dark:text-neutral-900 shadow-xs'
+                    : 'bg-[#FAF9F5] dark:bg-neutral-800 text-[#737871] hover:text-[#171916]'
+                }`}
+              >
+                🗺️ Campus Satellite Map
+              </button>
             </div>
           </div>
+
+          {/* Interactive Map: Curved Building Blueprint (Default) or OpenStreetMap */}
+          {mapViewMode === 'blueprint' ? (
+            <VesitCurvedBuildingMap
+              locations={locations}
+              selectedLocation={selectedLocation}
+              onSelectLocation={(loc) => setSelectedLocation(loc)}
+            />
+          ) : (
+            <div className="rounded-3xl border border-[#E5E3DC] dark:border-neutral-800 overflow-hidden bg-white dark:bg-neutral-900 shadow-sm">
+              <div className="p-3 bg-neutral-100 dark:bg-neutral-800 border-b border-[#E5E3DC] dark:border-neutral-700 text-xs text-[#555952] dark:text-neutral-300 flex items-center justify-between">
+                <span>VESIT Campus Grounds · Hashu Advani Memorial Complex, Collector&apos;s Colony, Chembur</span>
+                <span className="font-mono font-bold text-[#F97316]">19.0461° N, 72.8955° E</span>
+              </div>
+              <div className="h-64 sm:h-80 w-full z-10">
+                {selectedLocation && (
+                  <MapContainer
+                    center={selectedLocation.coords}
+                    zoom={18}
+                    scrollWheelZoom={false}
+                    className="h-full w-full"
+                  >
+                    <TileLayer
+                      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                      url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    />
+                    <MapRecenter coords={selectedLocation.coords} />
+                    {locations.map((loc) => (
+                      <Marker
+                        key={loc.id}
+                        position={loc.coords}
+                        icon={campusLocIcon}
+                        eventHandlers={{
+                          click: () => setSelectedLocation(loc),
+                        }}
+                      >
+                        <Popup>
+                          <div className="text-xs font-bold">{loc.name}</div>
+                          <div className="text-[11px] text-[#555952] mt-0.5">
+                            {loc.floor} · {getOrientationCue(loc.id)}
+                          </div>
+                        </Popup>
+                      </Marker>
+                    ))}
+                  </MapContainer>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Location Detail Card with generous spacing & extra prominent "WHERE IT IS" font */}
           {selectedLocation && (

@@ -62,7 +62,7 @@ export const DashboardPage: React.FC = () => {
     completionPercentage,
   } = useEmberEconomy();
 
-  const [feedFilter, setFeedFilter] = useState<'all' | 'rides' | 'challenges' | 'events'>('all');
+  const [feedFilter, setFeedFilter] = useState<'all' | 'rides' | 'learning' | 'updates'>('all');
 
   // Academic calculation
   const sgpaSummary = calculateSemesterSgpa(subjects);
@@ -654,15 +654,15 @@ export const DashboardPage: React.FC = () => {
           </Link>
 
           <Link
-            to="/challenges"
-            className="p-3.5 rounded-xl bg-white border border-[#E5E3DC] hover:border-amber-500 transition-all flex flex-col gap-2 group shadow-2xs"
+            to="/learning"
+            className="p-3.5 rounded-xl bg-white border border-[#E5E3DC] hover:border-purple-500 transition-all flex flex-col gap-2 group shadow-2xs"
           >
-            <div className="w-8 h-8 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center group-hover:scale-105 transition-transform">
-              <Trophy className="w-4 h-4" />
+            <div className="w-8 h-8 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center group-hover:scale-105 transition-transform">
+              <Users className="w-4 h-4" />
             </div>
             <div>
-              <div className="text-xs font-bold text-[#171916]">Join Challenge</div>
-              <div className="text-[10px] text-[#737871]">Compete for points</div>
+              <div className="text-xs font-bold text-[#171916]">1-on-1 Whiteboard</div>
+              <div className="text-[10px] text-[#737871]">Peer Learning Rooms</div>
             </div>
           </Link>
 
@@ -818,7 +818,7 @@ export const DashboardPage: React.FC = () => {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
           <div>
             <h2 className="text-lg font-bold text-[#171916] tracking-tight">Campus Activity Feed</h2>
-            <div className="text-xs text-[#737871]">Real-time updates across carpools, challenges, and events</div>
+            <div className="text-xs text-[#737871]">Real-time updates across carpools, 1-on-1 study rooms, and announcements</div>
           </div>
 
           {/* Filter tabs */}
@@ -840,20 +840,20 @@ export const DashboardPage: React.FC = () => {
               Rides
             </button>
             <button
-              onClick={() => setFeedFilter('challenges')}
+              onClick={() => setFeedFilter('learning')}
               className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-colors cursor-pointer ${
-                feedFilter === 'challenges' ? 'bg-white text-[#171916] shadow-2xs' : 'text-[#737871] hover:text-[#171916]'
+                feedFilter === 'learning' ? 'bg-white text-[#171916] shadow-2xs' : 'text-[#737871] hover:text-[#171916]'
               }`}
             >
-              Challenges
+              1-on-1 Rooms
             </button>
             <button
-              onClick={() => setFeedFilter('events')}
+              onClick={() => setFeedFilter('updates')}
               className={`px-2.5 py-1 text-xs font-semibold rounded-lg transition-colors cursor-pointer ${
-                feedFilter === 'events' ? 'bg-white text-[#171916] shadow-2xs' : 'text-[#737871] hover:text-[#171916]'
+                feedFilter === 'updates' ? 'bg-white text-[#171916] shadow-2xs' : 'text-[#737871] hover:text-[#171916]'
               }`}
             >
-              Events
+              Daily Updates
             </button>
           </div>
         </div>
@@ -885,53 +885,53 @@ export const DashboardPage: React.FC = () => {
             </div>
           )}
 
-          {/* Feed Card 2: Peer Challenges */}
-          {(feedFilter === 'all' || feedFilter === 'challenges') && (
+          {/* Feed Card 2: 1-on-1 Peer Learning Rooms */}
+          {(feedFilter === 'all' || feedFilter === 'learning') && (
             <div className="p-4 rounded-xl bg-white border border-[#E5E3DC] shadow-xs space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-[#171916] flex items-center gap-1.5">
-                  <Trophy className="w-4 h-4 text-amber-500" />
-                  <span>Weekly Challenge</span>
+                  <Users className="w-4 h-4 text-purple-600" />
+                  <span>1-on-1 Study Room</span>
                 </span>
-                <span className="text-[10px] text-[#F97316] font-semibold">+80 Points</span>
+                <span className="text-[10px] text-purple-600 font-semibold">Live Whiteboard</span>
               </div>
               <div>
-                <div className="text-xs font-bold text-[#171916]">{challenges[0]?.title}</div>
+                <div className="text-xs font-bold text-[#171916]">Interactive Collaborative Whiteboard</div>
                 <div className="text-[11px] text-[#555952] mt-0.5">
-                  {challenges[0]?.participantsCount} classmates participating · Deadline: {challenges[0]?.deadline}
+                  Create a room, share a 6-character PIN, and draw together in real time.
                 </div>
               </div>
               <Link
-                to="/challenges"
+                to="/learning"
                 className="inline-flex items-center gap-1 text-xs font-semibold text-[#F97316] hover:underline pt-1"
               >
-                <span>Join Challenge</span>
+                <span>Launch / Join Room</span>
                 <ChevronRight className="w-3.5 h-3.5" />
               </Link>
             </div>
           )}
 
-          {/* Feed Card 3: Events */}
-          {(feedFilter === 'all' || feedFilter === 'events') && (
+          {/* Feed Card 3: Daily Campus Updates */}
+          {(feedFilter === 'all' || feedFilter === 'updates') && (
             <div className="p-4 rounded-xl bg-white border border-[#E5E3DC] shadow-xs space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-[#171916] flex items-center gap-1.5">
-                  <Calendar className="w-4 h-4 text-purple-600" />
-                  <span>Genesis 2.0 Hackathon</span>
+                  <Radio className="w-4 h-4 text-orange-600" />
+                  <span>Campus Daily Updates</span>
                 </span>
-                <span className="text-[10px] text-purple-600 font-semibold">Tomorrow</span>
+                <span className="text-[10px] text-orange-600 font-semibold">Verified</span>
               </div>
               <div>
-                <div className="text-xs font-bold text-[#171916]">{events[0]?.title}</div>
-                <div className="text-[11px] text-[#555952] mt-0.5">
-                  Venue: {events[0]?.venue} · {events[0]?.registeredCount}/{events[0]?.maxSeats} confirmed
+                <div className="text-xs font-bold text-[#171916]">{dailyUpdates[0]?.title || 'Campus Announcements'}</div>
+                <div className="text-[11px] text-[#555952] mt-0.5 line-clamp-1">
+                  {dailyUpdates[0]?.description || 'Check verified campus opportunities & updates.'}
                 </div>
               </div>
               <Link
-                to="/events"
+                to="/updates"
                 className="inline-flex items-center gap-1 text-xs font-semibold text-[#F97316] hover:underline pt-1"
               >
-                <span>Event Details & RSVP</span>
+                <span>Browse Campus Feed</span>
                 <ChevronRight className="w-3.5 h-3.5" />
               </Link>
             </div>

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import { Sparkles, X, CheckCircle, ArrowRight, RotateCcw, MapPin, Calculator, Car, Trophy, Calendar, BookOpen } from 'lucide-react';
+import { Sparkles, X, CheckCircle, ArrowRight, RotateCcw, MapPin, Calculator, Car, BookOpen, Users } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export const JudgeGuideModal: React.FC = () => {
@@ -8,10 +8,8 @@ export const JudgeGuideModal: React.FC = () => {
   const {
     user,
     resetDemoData,
-    completeChallenge,
     requestSeat,
     rides,
-    challenges,
     showToast,
   } = useApp();
 
@@ -50,14 +48,10 @@ export const JudgeGuideModal: React.FC = () => {
     },
     {
       step: 4,
-      title: '4. Peer Challenges & Live Leaderboard',
-      desc: 'Idempotent completion logic prevents duplicate point exploitation. Completing a challenge updates user points, streak, and class rank dynamically.',
-      icon: Trophy,
-      link: '/challenges',
-      action: () => {
-        completeChallenge('ch_01');
-      },
-      actionLabel: '1-Click Test: Complete C++ Challenge (+80 pts)',
+      title: '4. 1-on-1 Peer Whiteboard Learning Rooms',
+      desc: 'PIN-based private 1-host + 1-joiner collaborative study rooms. Real-time synchronized drawing, pen, highlighter, shapes, formulas, undo/redo, and session shredder.',
+      icon: Users,
+      link: '/learning',
     },
     {
       step: 5,
@@ -68,10 +62,10 @@ export const JudgeGuideModal: React.FC = () => {
     },
     {
       step: 6,
-      title: '6. Events & Peer Study Time-Credits',
-      desc: 'One-click RSVP with real capacity constraints, and a double-entry time credit ledger where students earn credits teaching and spend credits learning.',
-      icon: BookOpen,
-      link: '/learning',
+      title: '6. EMBER Economy, Crates & 75 Badges',
+      desc: 'Campus currency vault, daily reward streak, mystery crates with rarity odds, and 75 tier-ranked collectible badges with custom svg artwork.',
+      icon: Sparkles,
+      link: '/badges',
     },
   ];
 

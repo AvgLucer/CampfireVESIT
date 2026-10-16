@@ -34,14 +34,12 @@ export const Sidebar: React.FC = () => {
   const links = [
     { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
     { label: 'Daily Updates', path: '/updates', icon: Radio, badgeCount: 'Live' },
+    { label: 'Peer Learning', path: '/learning', icon: Users, badgeCount: '1-on-1' },
     { label: 'Badge Collection', path: '/badges', icon: Layers, badgeCount: `${economy.ownedBadgeIds.length}/75` },
     { label: 'Crate Shop', path: '/crates', icon: Box },
     { label: 'Academics', path: '/academics', icon: GraduationCap },
     { label: 'Rides & Carpools', path: '/rides', icon: Car },
-    { label: 'Challenges', path: '/challenges', icon: Trophy },
     { label: 'Campus Guide', path: '/campus', icon: MapPin },
-    { label: 'Campus Events', path: '/events', icon: Calendar },
-    { label: 'Peer Learning', path: '/learning', icon: Users },
   ];
 
   return (

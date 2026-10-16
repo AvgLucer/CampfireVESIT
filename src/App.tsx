@@ -85,11 +85,7 @@ export default function App() {
               />
               <Route
                 path="/challenges"
-                element={
-                  <ProtectedRoute>
-                    <ChallengesPage />
-                  </ProtectedRoute>
-                }
+                element={<Navigate to="/learning" replace />}
               />
               <Route
                 path="/campus"
@@ -101,11 +97,7 @@ export default function App() {
               />
               <Route
                 path="/events"
-                element={
-                  <ProtectedRoute>
-                    <EventsPage />
-                  </ProtectedRoute>
-                }
+                element={<Navigate to="/learning" replace />}
               />
               <Route
                 path="/learning"
