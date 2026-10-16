@@ -89,5 +89,15 @@ service cloud.firestore {
     match /notifications/{notificationId} {
       allow read, write: if true;
     }
+
+    // Campus Daily Updates & Announcements
+    match /daily_updates/{updateId} {
+      allow read, write: if true;
+    }
+
+    // Daily Update Applications
+    match /update_applications/{applicationId} {
+      allow read, write: if true;
+    }
   }
 }

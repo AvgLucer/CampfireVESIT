@@ -54,6 +54,7 @@ export const Navbar: React.FC = () => {
 
   const navLinks = [
     { label: 'Dashboard', path: '/dashboard' },
+    { label: 'Daily Updates', path: '/updates' },
     { label: 'Academics', path: '/academics' },
     { label: 'Rides', path: '/rides' },
     { label: 'Challenges', path: '/challenges' },

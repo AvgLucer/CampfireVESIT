@@ -15,6 +15,7 @@ import { SettingsPage } from './pages/SettingsPage';
 import { BadgesPage } from './pages/BadgesPage';
 import { CratesPage } from './pages/CratesPage';
 import { WalletPage } from './pages/WalletPage';
+import { DailyUpdatesPage } from './pages/DailyUpdatesPage';
 
 export default function App() {
   return (
@@ -25,6 +26,7 @@ export default function App() {
             <Routes>
               <Route path="/" element={<LandingPage />} />
               <Route path="/dashboard" element={<DashboardPage />} />
+              <Route path="/updates" element={<DailyUpdatesPage />} />
               <Route path="/academics" element={<AcademicsPage />} />
               <Route path="/rides" element={<RidesPage />} />
               <Route path="/challenges" element={<ChallengesPage />} />

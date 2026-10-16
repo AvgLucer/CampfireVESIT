@@ -22,6 +22,7 @@ import {
   Layers,
   Box,
   Award,
+  Radio,
 } from 'lucide-react';
 
 export const Sidebar: React.FC = () => {
@@ -31,6 +32,7 @@ export const Sidebar: React.FC = () => {
 
   const links = [
     { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+    { label: 'Daily Updates', path: '/updates', icon: Radio, badgeCount: 'Live' },
     { label: 'Badge Collection', path: '/badges', icon: Layers, badgeCount: `${economy.ownedBadgeIds.length}/75` },
     { label: 'Crate Shop', path: '/crates', icon: Box },
     { label: 'Academics', path: '/academics', icon: GraduationCap },

@@ -229,3 +229,5 @@ export interface NotificationItem {
   isRead: boolean;
   createdAt: string;
 }
+
+export * from './dailyUpdates';

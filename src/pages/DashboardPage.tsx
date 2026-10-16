@@ -29,6 +29,7 @@ import {
   Layers,
   Award,
   Gift,
+  Radio,
 } from 'lucide-react';
 
 export const DashboardPage: React.FC = () => {
@@ -38,6 +39,7 @@ export const DashboardPage: React.FC = () => {
     lectures,
     subjects,
     rides,
+    dailyUpdates,
     challenges,
     events,
     learningSessions,
@@ -707,6 +709,100 @@ export const DashboardPage: React.FC = () => {
               <div className="text-xs font-bold text-[#171916]">Study Session</div>
             </div>
           </Link>
+
+          <Link
+            to="/updates"
+            className="p-3.5 rounded-xl bg-white border border-[#E5E3DC] hover:border-[#F97316] transition-all flex flex-col gap-2 group shadow-2xs"
+          >
+            <div className="w-8 h-8 rounded-lg bg-orange-100 text-[#F97316] flex items-center justify-center group-hover:scale-105 transition-transform">
+              <Radio className="w-4 h-4 animate-pulse text-[#F97316]" />
+            </div>
+            <div>
+              <div className="text-xs font-bold text-[#171916]">Daily Updates</div>
+              <div className="text-[10px] text-[#737871]">Live campus bulletin</div>
+            </div>
+          </Link>
+        </div>
+      </div>
+
+      {/* CAMPUS DAILY UPDATES SPOTLIGHT */}
+      <div className="p-5 sm:p-6 rounded-3xl bg-gradient-to-r from-orange-50/60 via-white to-amber-50/40 dark:from-neutral-900 dark:via-neutral-900 dark:to-neutral-900 border border-[#E5E3DC] dark:border-neutral-800 shadow-xs space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-orange-100 dark:bg-orange-950/60 text-[#F97316] flex items-center justify-center font-bold">
+              <Radio className="w-4 h-4 animate-pulse" />
+            </div>
+            <div>
+              <h2 className="text-base font-bold text-[#171916] dark:text-neutral-100 flex items-center gap-2">
+                <span>Campus Daily Updates Bulletin</span>
+                <span className="text-[10px] px-2 py-0.5 rounded-full bg-orange-100 dark:bg-orange-950/80 text-[#F97316] font-bold">
+                  LIVE
+                </span>
+              </h2>
+              <div className="text-xs text-[#737871] dark:text-neutral-400">
+                Active announcements, hackathons, lost items & opportunities
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Link
+              to="/updates"
+              className="text-xs font-bold px-3 py-1.5 rounded-xl border border-[#E5E3DC] dark:border-neutral-700 bg-white dark:bg-neutral-800 hover:border-[#F97316] text-[#171916] dark:text-neutral-200 transition-colors"
+            >
+              + Host an Update
+            </Link>
+            <Link
+              to="/updates"
+              className="text-xs font-bold px-3.5 py-1.5 rounded-xl bg-[#F97316] hover:bg-[#EA580C] text-white transition-colors flex items-center gap-1 shadow-xs"
+            >
+              <span>View All</span>
+              <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+          </div>
+        </div>
+
+        {/* 2-Column Showcase */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {dailyUpdates
+            .filter((u) => u.status === 'approved' && new Date(u.expiresAt) > new Date())
+            .slice(0, 2)
+            .map((upd) => (
+              <Link
+                key={upd.id}
+                to="/updates"
+                className="p-4 rounded-2xl bg-white dark:bg-neutral-800/80 border border-[#E5E3DC] dark:border-neutral-700 hover:border-[#F97316] transition-all flex items-start gap-3.5 group shadow-2xs"
+              >
+                <img
+                  src={upd.coverImageUrl}
+                  alt={upd.title}
+                  className="w-16 h-16 rounded-xl object-cover shrink-0 group-hover:scale-105 transition-transform"
+                />
+                <div className="space-y-1 min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-1">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#F97316]">
+                      {upd.category}
+                    </span>
+                    <span className="text-[10px] text-[#737871] font-mono">
+                      Expires {new Date(upd.expiresAt).toLocaleDateString()}
+                    </span>
+                  </div>
+                  <h4 className="text-xs font-bold text-[#171916] dark:text-neutral-100 group-hover:text-[#F97316] transition-colors line-clamp-1">
+                    {upd.title}
+                  </h4>
+                  <p className="text-[11px] text-[#555952] dark:text-neutral-400 line-clamp-1">
+                    {upd.description}
+                  </p>
+                  {upd.customFields && upd.customFields.length > 0 && (
+                    <div className="pt-1 flex items-center gap-2 text-[10px] text-[#737871]">
+                      <span className="font-semibold text-[#171916] dark:text-neutral-200">
+                        {upd.customFields[0].label}: {String(upd.customFields[0].value)}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </Link>
+            ))}
         </div>
       </div>
 

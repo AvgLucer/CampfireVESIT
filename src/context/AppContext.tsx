@@ -47,6 +47,27 @@ import {
   respondToSeatRequestInFirestore,
   resetFirestoreRides,
 } from '../services/ridesFirestoreService';
+import {
+  DailyUpdate,
+  UpdateApplication,
+  UpdateApplicationStatus,
+  UpdateModerationStatus,
+  AuditLogEntry,
+} from '../types/dailyUpdates';
+import {
+  INITIAL_DAILY_UPDATES,
+  INITIAL_UPDATE_APPLICATIONS,
+} from '../data/dailyUpdatesSeedData';
+import {
+  seedInitialDailyUpdatesIfEmpty,
+  subscribeToFirestoreDailyUpdates,
+  subscribeToFirestoreApplications,
+  saveDailyUpdateToFirestore,
+  withdrawDailyUpdateInFirestore,
+  moderateDailyUpdateInFirestore,
+  submitApplicationToFirestore,
+  reviewApplicationInFirestore,
+} from '../services/dailyUpdatesFirestoreService';
 
 interface ToastState {
   id: string;
@@ -71,6 +92,8 @@ interface AppContextType {
   creditTransactions: CreditTransaction[];
   notifications: NotificationItem[];
   gradingScale: GradingScaleItem[];
+  dailyUpdates: DailyUpdate[];
+  updateApplications: UpdateApplication[];
   isFirebaseActive: boolean;
   isAuthModalOpen: boolean;
   isProfileSwitcherOpen: boolean;
@@ -122,6 +145,14 @@ interface AppContextType {
   createLearningSession: (session: Omit<LearningSession, 'id' | 'hostId' | 'hostName' | 'hostVerified' | 'enrolledUserIds' | 'status' | 'createdAt'>) => void;
   joinLearningSession: (sessionId: string) => boolean;
   completeLearningSession: (sessionId: string) => void;
+
+  // Daily Updates
+  createDailyUpdate: (update: Omit<DailyUpdate, 'id' | 'createdAt' | 'updatedAt' | 'auditLog'>) => Promise<string>;
+  editDailyUpdate: (id: string, updates: Partial<DailyUpdate>, shouldReModerate?: boolean) => Promise<void>;
+  withdrawDailyUpdate: (id: string) => Promise<void>;
+  submitUpdateApplication: (updateId: string, statement: string, answers: { question: string; answer: string }[]) => Promise<boolean>;
+  reviewUpdateApplication: (applicationId: string, status: UpdateApplicationStatus, feedback?: string) => Promise<void>;
+  moderateDailyUpdate: (updateId: string, action: 'approved' | 'declined' | 'changes_requested' | 'expired', feedback?: string) => Promise<void>;
 
   // Notifications
   markNotificationRead: (id: string) => void;
@@ -190,6 +221,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [creditTransactions, setCreditTransactions] = useState<CreditTransaction[]>(() => loadFromStorage('transactions', INITIAL_TRANSACTIONS));
   const [notifications, setNotifications] = useState<NotificationItem[]>(() => loadFromStorage('notifications', INITIAL_NOTIFICATIONS));
   const [gradingScale] = useState<GradingScaleItem[]>(DEFAULT_GRADING_SCALE);
+  const [dailyUpdates, setDailyUpdates] = useState<DailyUpdate[]>(() =>
+    loadFromStorage('dailyUpdates', INITIAL_DAILY_UPDATES)
+  );
+  const [updateApplications, setUpdateApplications] = useState<UpdateApplication[]>(() =>
+    loadFromStorage('updateApplications', INITIAL_UPDATE_APPLICATIONS)
+  );
 
   const [allProfiles, setAllProfiles] = useState<UserProfile[]>(() => MiniMothAdapter.getAllStoredUsers());
   const [isFirebaseActive, setIsFirebaseActive] = useState<boolean>(false);
@@ -199,12 +236,13 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [activeLocationFocus, setActiveLocationFocus] = useState<CampusLocation | null>(null);
   const [toasts, setToasts] = useState<ToastState[]>([]);
 
-  // Check Firebase connectivity on boot and subscribe to real-time rides across all devices
+  // Check Firebase connectivity on boot and subscribe to real-time rides & daily updates across all devices
   useEffect(() => {
     testFirestoreConnection().then(active => {
       setIsFirebaseActive(active);
       if (active) {
         seedInitialRidesIfEmpty();
+        seedInitialDailyUpdatesIfEmpty();
       }
     });
 
@@ -233,9 +271,35 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
     );
 
+    // Real-time synchronization for campus daily updates
+    const unsubDailyUpdates = subscribeToFirestoreDailyUpdates(
+      (firestoreUpdates) => {
+        if (firestoreUpdates && firestoreUpdates.length > 0) {
+          setDailyUpdates(firestoreUpdates);
+        }
+      },
+      (err) => {
+        console.warn('Real-time Daily Updates subscription notice:', err);
+      }
+    );
+
+    // Real-time synchronization for update applications
+    const unsubApplications = subscribeToFirestoreApplications(
+      (firestoreApps) => {
+        if (firestoreApps) {
+          setUpdateApplications(firestoreApps);
+        }
+      },
+      (err) => {
+        console.warn('Real-time Update Applications subscription notice:', err);
+      }
+    );
+
     return () => {
       unsubRides();
       unsubRequests();
+      unsubDailyUpdates();
+      unsubApplications();
     };
   }, []);
 
@@ -252,6 +316,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   useEffect(() => { saveToStorage('learningSessions', learningSessions); }, [learningSessions]);
   useEffect(() => { saveToStorage('transactions', creditTransactions); }, [creditTransactions]);
   useEffect(() => { saveToStorage('notifications', notifications); }, [notifications]);
+  useEffect(() => { saveToStorage('dailyUpdates', dailyUpdates); }, [dailyUpdates]);
+  useEffect(() => { saveToStorage('updateApplications', updateApplications); }, [updateApplications]);
 
   const showToast = useCallback((message: string, type: 'success' | 'info' | 'warning' | 'error' = 'info') => {
     const id = `toast_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
@@ -802,6 +868,270 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     showToast('All notifications marked as read', 'info');
   }, [showToast]);
 
+  // DAILY UPDATES ACTIONS
+  const createDailyUpdate = useCallback(async (
+    updateData: Omit<DailyUpdate, 'id' | 'createdAt' | 'updatedAt' | 'auditLog'>
+  ): Promise<string> => {
+    if (!user) throw new Error('Must be logged in to host an update');
+
+    const updateId = `upd_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`;
+    const now = new Date().toISOString();
+
+    const auditEntry: AuditLogEntry = {
+      id: `aud_${Date.now()}`,
+      action: updateData.status === 'draft' ? 'edited' : 'submitted',
+      actorId: user.userId,
+      actorName: user.name,
+      actorRole: user.role,
+      timestamp: now,
+      feedback: updateData.status === 'draft' ? 'Saved as draft.' : 'Submitted for campus admin review.',
+    };
+
+    const newUpdate: DailyUpdate = {
+      ...updateData,
+      id: updateId,
+      createdAt: now,
+      updatedAt: now,
+      auditLog: [auditEntry],
+    };
+
+    setDailyUpdates(prev => [newUpdate, ...prev]);
+    await saveDailyUpdateToFirestore(newUpdate);
+
+    if (newUpdate.status === 'draft') {
+      showToast('Daily update saved as draft.', 'info');
+    } else if (newUpdate.status === 'approved') {
+      showToast('Daily update published to campus feed!', 'success');
+    } else {
+      showToast('Daily update submitted for admin review.', 'success');
+    }
+
+    return updateId;
+  }, [user, showToast]);
+
+  const editDailyUpdate = useCallback(async (
+    id: string,
+    updates: Partial<DailyUpdate>,
+    shouldReModerate = false
+  ): Promise<void> => {
+    if (!user) return;
+    const existing = dailyUpdates.find(u => u.id === id);
+    if (!existing) return;
+
+    const now = new Date().toISOString();
+    const newStatus = shouldReModerate && existing.status === 'approved'
+      ? 'pending'
+      : (updates.status || existing.status);
+
+    const auditEntry: AuditLogEntry = {
+      id: `aud_${Date.now()}`,
+      action: newStatus === 'pending' && existing.status === 'changes_requested' ? 'resubmitted' : 'edited',
+      actorId: user.userId,
+      actorName: user.name,
+      actorRole: user.role,
+      timestamp: now,
+      feedback: shouldReModerate ? 'Content updated, resubmitted for admin review.' : 'Announcement details updated.',
+    };
+
+    const updated: DailyUpdate = {
+      ...existing,
+      ...updates,
+      status: newStatus,
+      updatedAt: now,
+      auditLog: [...(existing.auditLog || []), auditEntry],
+    };
+
+    setDailyUpdates(prev => prev.map(u => u.id === id ? updated : u));
+    await saveDailyUpdateToFirestore(updated);
+
+    if (shouldReModerate && existing.status === 'approved') {
+      showToast('Update modified and resubmitted for admin re-moderation.', 'info');
+    } else if (existing.status === 'changes_requested') {
+      showToast('Changes submitted! Awaiting administrator review.', 'success');
+    } else {
+      showToast('Daily update updated successfully.', 'success');
+    }
+  }, [user, dailyUpdates, showToast]);
+
+  const withdrawDailyUpdate = useCallback(async (id: string): Promise<void> => {
+    if (!user) return;
+    setDailyUpdates(prev => prev.map(u => u.id === id ? { ...u, status: 'withdrawn' } : u));
+    await withdrawDailyUpdateInFirestore(id, { id: user.userId, name: user.name, role: user.role });
+    showToast('Daily update withdrawn from active feed.', 'info');
+  }, [user, showToast]);
+
+  const submitUpdateApplication = useCallback(async (
+    updateId: string,
+    statement: string,
+    answers: { question: string; answer: string }[]
+  ): Promise<boolean> => {
+    if (!user) {
+      showToast('Please sign in to submit an application.', 'warning');
+      return false;
+    }
+
+    const update = dailyUpdates.find(u => u.id === updateId);
+    if (!update) return false;
+
+    if (update.status !== 'approved' || new Date(update.expiresAt) <= new Date()) {
+      showToast('This update is no longer accepting applications.', 'error');
+      return false;
+    }
+
+    const existing = updateApplications.find(
+      a => a.updateId === updateId && a.applicantId === user.userId
+    );
+    if (existing) {
+      showToast('You have already applied for this announcement.', 'info');
+      return false;
+    }
+
+    const applicationId = `app_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`;
+    const newApp: UpdateApplication = {
+      id: applicationId,
+      updateId,
+      updateTitle: update.title,
+      updateCategory: update.category,
+      applicantId: user.userId,
+      applicantName: user.name,
+      applicantUsername: user.username,
+      applicantEmail: user.email,
+      applicantPhone: user.phone,
+      applicantDepartment: user.department,
+      applicantYear: user.year,
+      applicantRollNumber: user.rollNumber,
+      applicantAvatarUrl: user.avatarUrl,
+      statement,
+      answers,
+      status: 'pending',
+      submittedAt: new Date().toISOString(),
+    };
+
+    setUpdateApplications(prev => [newApp, ...prev]);
+    await submitApplicationToFirestore(newApp);
+
+    // Notify the host
+    const notif: NotificationItem = {
+      id: `notif_${Date.now()}`,
+      userId: update.hostId,
+      title: 'New Application Received',
+      message: `${user.name} submitted an application for "${update.title}"`,
+      type: 'event',
+      link: '/updates?tab=hosted',
+      isRead: false,
+      createdAt: new Date().toISOString(),
+    };
+    setNotifications(prev => [notif, ...prev]);
+
+    showToast('Application submitted successfully to host!', 'success');
+    return true;
+  }, [user, dailyUpdates, updateApplications, showToast]);
+
+  const reviewUpdateApplication = useCallback(async (
+    applicationId: string,
+    status: UpdateApplicationStatus,
+    feedback?: string
+  ): Promise<void> => {
+    if (!user) return;
+    const app = updateApplications.find(a => a.id === applicationId);
+    if (!app) return;
+
+    const patch = {
+      status,
+      hostFeedback: feedback,
+      reviewedAt: new Date().toISOString(),
+    };
+
+    setUpdateApplications(prev =>
+      prev.map(a => a.id === applicationId ? { ...a, ...patch } : a)
+    );
+    await reviewApplicationInFirestore(applicationId, status, feedback);
+
+    // Notify applicant
+    const notif: NotificationItem = {
+      id: `notif_${Date.now()}`,
+      userId: app.applicantId,
+      title: `Application ${status.toUpperCase()}`,
+      message: `Your application for "${app.updateTitle}" was ${status}${feedback ? `: "${feedback}"` : '.'}`,
+      type: 'event',
+      link: '/updates?tab=applications',
+      isRead: false,
+      createdAt: new Date().toISOString(),
+    };
+    setNotifications(prev => [notif, ...prev]);
+
+    showToast(`Application marked as ${status}.`, 'success');
+  }, [user, updateApplications, showToast]);
+
+  const moderateDailyUpdate = useCallback(async (
+    updateId: string,
+    action: 'approved' | 'declined' | 'changes_requested' | 'expired',
+    feedback?: string
+  ): Promise<void> => {
+    if (!user) return;
+    const existing = dailyUpdates.find(u => u.id === updateId);
+    if (!existing) return;
+
+    await moderateDailyUpdateInFirestore(
+      updateId,
+      action,
+      feedback,
+      { id: user.userId, name: user.name, role: user.role }
+    );
+
+    const now = new Date().toISOString();
+    const auditEntry: AuditLogEntry = {
+      id: `aud_${Date.now()}`,
+      action,
+      actorId: user.userId,
+      actorName: user.name,
+      actorRole: user.role,
+      timestamp: now,
+      feedback,
+    };
+
+    setDailyUpdates(prev =>
+      prev.map(u =>
+        u.id === updateId
+          ? {
+              ...u,
+              status: action,
+              moderationFeedback: feedback,
+              moderatedBy: user.userId,
+              moderatedAt: now,
+              updatedAt: now,
+              ...(action === 'approved' ? { publishedAt: now } : {}),
+              auditLog: [...(u.auditLog || []), auditEntry],
+            }
+          : u
+      )
+    );
+
+    // Send notification to the host
+    const actionLabel =
+      action === 'approved'
+        ? 'Approved & Live'
+        : action === 'changes_requested'
+        ? 'Changes Requested'
+        : action === 'declined'
+        ? 'Declined'
+        : 'Expired';
+
+    const notif: NotificationItem = {
+      id: `notif_${Date.now()}`,
+      userId: existing.hostId,
+      title: `Update Moderation: ${actionLabel}`,
+      message: `Your announcement "${existing.title}" is now ${actionLabel}${feedback ? `. Note: ${feedback}` : '.'}`,
+      type: 'system',
+      link: '/updates?tab=hosted',
+      isRead: false,
+      createdAt: now,
+    };
+    setNotifications(prev => [notif, ...prev]);
+
+    showToast(`Announcement marked as ${actionLabel}.`, 'success');
+  }, [user, dailyUpdates, showToast]);
+
   // RESET DEMO DATA
   const resetDemoData = useCallback(() => {
     Object.keys(localStorage).forEach(key => {
@@ -823,6 +1153,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     setLearningSessions(INITIAL_LEARNING_SESSIONS);
     setCreditTransactions(INITIAL_TRANSACTIONS);
     setNotifications(INITIAL_NOTIFICATIONS);
+    setDailyUpdates(INITIAL_DAILY_UPDATES);
+    setUpdateApplications(INITIAL_UPDATE_APPLICATIONS);
     showToast('Demo data restored to initial baseline successfully across cloud & local storage!', 'success');
   }, [showToast]);
 
@@ -845,6 +1177,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         creditTransactions,
         notifications,
         gradingScale,
+        dailyUpdates,
+        updateApplications,
         isFirebaseActive,
         isAuthModalOpen,
         isProfileSwitcherOpen,
@@ -883,6 +1217,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         createLearningSession,
         joinLearningSession,
         completeLearningSession,
+        createDailyUpdate,
+        editDailyUpdate,
+        withdrawDailyUpdate,
+        submitUpdateApplication,
+        reviewUpdateApplication,
+        moderateDailyUpdate,
         markNotificationRead,
         markAllNotificationsRead,
         resetDemoData,
