@@ -1051,8 +1051,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     const notif: NotificationItem = {
       id: `notif_${Date.now()}`,
       userId: app.applicantId,
-      title: `Application ${status.toUpperCase()}`,
-      message: `Your application for "${app.updateTitle}" was ${status}${feedback ? `: "${feedback}"` : '.'}`,
+      title: status === 'accepted' ? 'Application Approved! 🎉' : 'Application Update',
+      message: `Your application for "${app.updateTitle}" was ${status === 'accepted' ? 'approved' : 'denied'}${feedback ? `. Message from host: "${feedback}"` : '.'}`,
       type: 'event',
       link: '/updates?tab=applications',
       isRead: false,
@@ -1060,7 +1060,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     };
     setNotifications(prev => [notif, ...prev]);
 
-    showToast(`Application marked as ${status}.`, 'success');
+    showToast(`Application marked as ${status === 'accepted' ? 'approved' : 'denied'}.`, 'success');
   }, [user, updateApplications, showToast]);
 
   const moderateDailyUpdate = useCallback(async (

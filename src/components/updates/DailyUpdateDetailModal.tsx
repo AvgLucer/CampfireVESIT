@@ -28,6 +28,8 @@ interface DailyUpdateDetailModalProps {
   isAdmin?: boolean;
   onEdit?: (update: DailyUpdate) => void;
   onWithdraw?: (update: DailyUpdate) => void;
+  onViewApplications?: (update: DailyUpdate) => void;
+  applicationsCount?: number;
   onModerate?: (
     updateId: string,
     action: 'approved' | 'declined' | 'changes_requested' | 'expired',
@@ -44,6 +46,8 @@ export const DailyUpdateDetailModal: React.FC<DailyUpdateDetailModalProps> = ({
   isAdmin = false,
   onEdit,
   onWithdraw,
+  onViewApplications,
+  applicationsCount = 0,
   onModerate,
 }) => {
   const [copied, setCopied] = useState(false);
@@ -340,6 +344,19 @@ export const DailyUpdateDetailModal: React.FC<DailyUpdateDetailModalProps> = ({
             {/* Host Controls */}
             {isHost && (
               <>
+                {update.acceptsApplications && onViewApplications && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      onClose();
+                      onViewApplications(update);
+                    }}
+                    className="px-4 py-2 rounded-xl bg-orange-100 hover:bg-orange-200/80 dark:bg-orange-950/80 dark:hover:bg-orange-900/80 text-[#F97316] text-xs font-bold flex items-center gap-1.5 cursor-pointer shadow-2xs transition-colors"
+                  >
+                    <Users className="w-3.5 h-3.5" />
+                    <span>View Applications ({applicationsCount})</span>
+                  </button>
+                )}
                 {onEdit && (update.status === 'draft' || update.status === 'changes_requested' || update.status === 'approved') && (
                   <button
                     type="button"

@@ -1,6 +1,7 @@
 import React from 'react';
 import { DailyUpdate } from '../../types/dailyUpdates';
 import { CustomFieldRenderer } from './CustomFieldRenderer';
+import { useApp } from '../../context/AppContext';
 import {
   Calendar,
   Clock,
@@ -38,6 +39,8 @@ export const DailyUpdateCard: React.FC<DailyUpdateCardProps> = ({
   onViewApplications,
   applicationsCount = 0,
 }) => {
+  const { user } = useApp();
+  const isHost = user && update.hostId === user.userId;
   const isExpired =
     update.status === 'expired' || new Date(update.expiresAt) <= new Date();
 
@@ -238,20 +241,26 @@ export const DailyUpdateCard: React.FC<DailyUpdateCardProps> = ({
                   {update.acceptsApplications && onViewApplications && (
                     <button
                       type="button"
-                      onClick={() => onViewApplications(update)}
-                      className="px-2 py-1 rounded-lg bg-orange-50 dark:bg-orange-950/40 border border-orange-200 dark:border-orange-800 text-[#F97316] text-[11px] font-bold flex items-center gap-1 hover:bg-orange-100 transition-colors cursor-pointer"
-                      title="View received applications"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onViewApplications(update);
+                      }}
+                      className="px-3 py-1.5 rounded-xl bg-orange-100 hover:bg-orange-200 dark:bg-orange-950 dark:hover:bg-orange-900 border border-orange-300 dark:border-orange-800 text-[#F97316] text-xs font-bold flex items-center gap-1.5 shadow-2xs hover:shadow-xs transition-all cursor-pointer"
+                      title="View received applications & approve or deny"
                     >
-                      <Users className="w-3 h-3" />
-                      <span>{applicationsCount}</span>
+                      <Users className="w-3.5 h-3.5" />
+                      <span>Applications ({applicationsCount})</span>
                     </button>
                   )}
                   {onEdit && (update.status === 'draft' || update.status === 'changes_requested' || update.status === 'approved') && (
                     <button
                       type="button"
-                      onClick={() => onEdit(update)}
-                      className="p-1.5 rounded-lg border border-[#E5E3DC] dark:border-neutral-700 text-[#555952] hover:text-[#171916] hover:bg-[#FAF9F5] transition-colors"
-                      title="Edit update"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onEdit(update);
+                      }}
+                      className="p-1.5 rounded-lg border border-[#E5E3DC] dark:border-neutral-700 text-[#555952] hover:text-[#171916] hover:bg-[#FAF9F5] transition-colors cursor-pointer"
+                      title="Edit announcement"
                     >
                       <FileEdit className="w-3.5 h-3.5" />
                     </button>
@@ -259,7 +268,21 @@ export const DailyUpdateCard: React.FC<DailyUpdateCardProps> = ({
                 </>
               ) : (
                 <>
-                  {update.acceptsApplications && !isExpired && update.status === 'approved' && onApply && (
+                  {/* Host viewing their own card in feed */}
+                  {isHost && update.acceptsApplications && onViewApplications ? (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onViewApplications(update);
+                      }}
+                      className="px-3 py-1.5 rounded-xl bg-orange-100 hover:bg-orange-200 dark:bg-orange-950 dark:hover:bg-orange-900 border border-orange-300 dark:border-orange-800 text-[#F97316] text-xs font-bold flex items-center gap-1.5 shadow-2xs hover:shadow-xs transition-all cursor-pointer"
+                      title="You are host: Review received student applications"
+                    >
+                      <Users className="w-3.5 h-3.5" />
+                      <span>Review Apps ({applicationsCount})</span>
+                    </button>
+                  ) : !isHost && update.acceptsApplications && !isExpired && update.status === 'approved' && onApply ? (
                     <button
                       type="button"
                       disabled={hasApplied}
@@ -275,11 +298,11 @@ export const DailyUpdateCard: React.FC<DailyUpdateCardProps> = ({
                     >
                       {hasApplied ? 'Applied ✓' : 'Apply'}
                     </button>
-                  )}
+                  ) : null}
                   <button
                     type="button"
                     onClick={() => onOpenDetails(update)}
-                    className="p-1.5 rounded-lg text-[#737871] hover:text-[#171916] hover:bg-[#FAF9F5] dark:hover:bg-neutral-800 transition-colors"
+                    className="p-1.5 rounded-lg text-[#737871] hover:text-[#171916] hover:bg-[#FAF9F5] dark:hover:bg-neutral-800 transition-colors cursor-pointer"
                     title="View full details"
                   >
                     <ArrowRight className="w-4 h-4" />

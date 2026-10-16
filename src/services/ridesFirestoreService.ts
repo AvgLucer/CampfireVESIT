@@ -9,6 +9,7 @@ import {
   writeBatch,
 } from 'firebase/firestore';
 import { db, handleFirestoreError, OperationType } from './firebase';
+import { cleanFirestoreData } from './dailyUpdatesFirestoreService';
 import { Ride, SeatRequest } from '../types';
 import { INITIAL_RIDES, INITIAL_SEAT_REQUESTS } from '../data/seedData';
 
@@ -127,7 +128,7 @@ export async function addRideToFirestore(ride: Ride): Promise<void> {
   const ridePath = `${RIDES_COLLECTION}/${ride.id}`;
   try {
     const rideRef = doc(db, RIDES_COLLECTION, ride.id);
-    await setDoc(rideRef, ride);
+    await setDoc(rideRef, cleanFirestoreData(ride));
   } catch (error) {
     handleFirestoreError(error, OperationType.WRITE, ridePath);
   }
@@ -141,7 +142,7 @@ export async function addSeatRequestToFirestore(request: SeatRequest): Promise<v
   const reqPath = `${SEAT_REQUESTS_COLLECTION}/${request.id}`;
   try {
     const reqRef = doc(db, SEAT_REQUESTS_COLLECTION, request.id);
-    await setDoc(reqRef, request);
+    await setDoc(reqRef, cleanFirestoreData(request));
   } catch (error) {
     handleFirestoreError(error, OperationType.WRITE, reqPath);
   }

@@ -195,7 +195,14 @@ export const DashboardPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
+              <Link
+                to="/updates?tab=admin"
+                className="px-3.5 py-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer shadow-xs"
+              >
+                <ShieldCheck className="w-3.5 h-3.5" />
+                <span>Moderation Desk ({dailyUpdates.filter(u => u.status === 'pending').length} pending)</span>
+              </Link>
               <button
                 onClick={openProfileSwitcher}
                 className="px-3.5 py-2 bg-[#F97316] hover:bg-[#EA580C] text-white text-xs font-bold rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer"

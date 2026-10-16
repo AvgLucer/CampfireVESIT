@@ -206,14 +206,38 @@ export function subscribeToFirestoreApplications(
 }
 
 /**
+ * Recursively strips keys with undefined values so that Firestore's setDoc/updateDoc
+ * does not throw "Unsupported field value: undefined".
+ */
+export function cleanFirestoreData<T>(obj: T): T {
+  if (obj === null || obj === undefined) {
+    return obj;
+  }
+  if (Array.isArray(obj)) {
+    return obj.map((item) => cleanFirestoreData(item)) as unknown as T;
+  }
+  if (typeof obj === 'object') {
+    const cleaned: Record<string, any> = {};
+    for (const [key, val] of Object.entries(obj)) {
+      if (val !== undefined) {
+        cleaned[key] = cleanFirestoreData(val);
+      }
+    }
+    return cleaned as T;
+  }
+  return obj;
+}
+
+/**
  * Create or save draft Daily Update
  */
 export async function saveDailyUpdateToFirestore(
   update: DailyUpdate
 ): Promise<void> {
+  const sanitized = cleanFirestoreData(update);
   try {
     const docRef = doc(db, UPDATES_COLLECTION, update.id);
-    await setDoc(docRef, update, { merge: true });
+    await setDoc(docRef, sanitized, { merge: true });
 
     // Update local cache
     const current = getLocalUpdates().filter((u) => u.id !== update.id);
@@ -311,9 +335,10 @@ export async function moderateDailyUpdateInFirestore(
 export async function submitApplicationToFirestore(
   application: UpdateApplication
 ): Promise<void> {
+  const sanitized = cleanFirestoreData(application);
   try {
     const docRef = doc(db, APPLICATIONS_COLLECTION, application.id);
-    await setDoc(docRef, application);
+    await setDoc(docRef, sanitized);
 
     const current = getLocalApplications().filter((a) => a.id !== application.id);
     saveLocalApplications([application, ...current]);
@@ -332,11 +357,11 @@ export async function reviewApplicationInFirestore(
   status: UpdateApplicationStatus,
   hostFeedback?: string
 ): Promise<void> {
-  const patch = {
+  const patch = cleanFirestoreData({
     status,
     hostFeedback: hostFeedback || '',
     reviewedAt: new Date().toISOString(),
-  };
+  });
 
   try {
     const docRef = doc(db, APPLICATIONS_COLLECTION, applicationId);

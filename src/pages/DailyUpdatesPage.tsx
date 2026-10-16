@@ -370,6 +370,10 @@ export const DailyUpdatesPage: React.FC = () => {
                     onOpenDetails={(u) => setSelectedUpdateForDetails(u)}
                     onApply={(u) => setUpdateToApply(u)}
                     hasApplied={Boolean(userApp)}
+                    applicationsCount={
+                      updateApplications.filter((a) => a.updateId === update.id).length
+                    }
+                    onViewApplications={(u) => setUpdateForApplicationsView(u)}
                   />
                 );
               })}
@@ -660,6 +664,13 @@ export const DailyUpdatesPage: React.FC = () => {
         onEdit={handleOpenEdit}
         onWithdraw={handleWithdraw}
         onModerate={moderateDailyUpdate}
+        applicationsCount={
+          updateApplications.filter((a) => a.updateId === selectedUpdateForDetails?.id).length
+        }
+        onViewApplications={(u) => {
+          setSelectedUpdateForDetails(null);
+          setUpdateForApplicationsView(u);
+        }}
       />
 
       {/* 3. Submit Application Modal */}
