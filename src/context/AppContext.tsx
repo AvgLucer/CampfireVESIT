@@ -1068,7 +1068,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     action: 'approved' | 'declined' | 'changes_requested' | 'expired',
     feedback?: string
   ): Promise<void> => {
-    if (!user) return;
+    if (!user || user.role !== 'admin') {
+      showToast('Action restricted: Only administrators can moderate announcements.', 'error');
+      return;
+    }
     const existing = dailyUpdates.find(u => u.id === updateId);
     if (!existing) return;
 

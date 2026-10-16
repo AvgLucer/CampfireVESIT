@@ -35,6 +35,22 @@ export const AdminModerationQueue: React.FC<AdminModerationQueueProps> = ({
   const [feedbackNote, setFeedbackNote] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  if (user?.role !== 'admin') {
+    return (
+      <div className="p-8 sm:p-12 rounded-3xl border border-red-200 dark:border-red-900/60 bg-red-50/70 dark:bg-red-950/20 text-center space-y-3">
+        <div className="w-12 h-12 mx-auto rounded-2xl bg-red-100 dark:bg-red-900/40 text-red-600 flex items-center justify-center">
+          <ShieldCheck className="w-6 h-6" />
+        </div>
+        <h3 className="text-base font-bold text-red-900 dark:text-red-200">
+          Access Restricted to Admin Role Members
+        </h3>
+        <p className="text-xs text-red-700 dark:text-red-400 max-w-md mx-auto">
+          The Campus Announcement Moderation Desk is reserved strictly for authenticated Academic Council members and faculty administrators.
+        </p>
+      </div>
+    );
+  }
+
   // Categorized counts
   const pendingCount = dailyUpdates.filter((u) => u.status === 'pending').length;
   const changesCount = dailyUpdates.filter((u) => u.status === 'changes_requested').length;

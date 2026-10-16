@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useLocation, useSearchParams } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import {
@@ -57,10 +57,19 @@ export const DailyUpdatesPage: React.FC = () => {
     showToast,
   } = useApp();
 
+  const isAdmin = user?.role === 'admin';
   const [searchParams, setSearchParams] = useSearchParams();
-  const initialTab = (searchParams.get('tab') as 'feed' | 'hosted' | 'applications' | 'admin') || 'feed';
+  const rawTab = searchParams.get('tab') as 'feed' | 'hosted' | 'applications' | 'admin' | null;
+  const initialTab = rawTab === 'admin' && !isAdmin ? 'feed' : (rawTab || 'feed');
 
   const [activeTab, setActiveTab] = useState<'feed' | 'hosted' | 'applications' | 'admin'>(initialTab);
+
+  // Strictly enforce that non-admins cannot stay on the admin tab
+  useEffect(() => {
+    if (!isAdmin && activeTab === 'admin') {
+      setActiveTab('feed');
+    }
+  }, [isAdmin, activeTab]);
   const [selectedCategory, setSelectedCategory] = useState<UpdateCategory>('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'newest' | 'expiring_soon' | 'title'>('newest');
@@ -74,10 +83,6 @@ export const DailyUpdatesPage: React.FC = () => {
 
   // Host Dashboard filter
   const [hostStatusFilter, setHostStatusFilter] = useState<'all' | 'active' | 'pending' | 'changes_requested' | 'draft' | 'expired' | 'withdrawn'>('all');
-
-  const isAdmin = user?.role === 'admin';
-  const adminProfile = allProfiles.find((p) => p.role === 'admin');
-  const studentProfile = allProfiles.find((p) => p.role === 'student');
 
   // Automatically check expirations and filter active feed
   const activeFeedUpdates = useMemo(() => {
@@ -188,41 +193,20 @@ export const DailyUpdatesPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Quick Demo Switcher helper (Student <-> Admin testing) */}
+        {/* Verification Status Badge */}
         <div className="mt-6 pt-4 border-t border-[#E5E3DC]/70 dark:border-neutral-800 flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2 text-[#737871] dark:text-neutral-400">
-            <Sparkles className="w-3.5 h-3.5 text-[#F97316]" />
+            <span className="w-2 h-2 rounded-full bg-emerald-500" />
             <span>
-              Active Profile: <strong className="text-[#171916] dark:text-neutral-200">{user?.name}</strong> (
-              {isAdmin ? 'Admin Moderation Access' : 'Student Host Access'})
+              Logged in as <strong className="text-[#171916] dark:text-neutral-200">{user?.name}</strong> ({isAdmin ? 'Faculty Administrator' : `${user?.department || 'VESIT'} Student`})
             </span>
           </div>
-
-          <div className="flex items-center gap-2">
-            <span className="text-[#737871] text-[11px]">Test Roles:</span>
-            {!isAdmin && adminProfile && (
-              <button
-                onClick={() => {
-                  switchProfile(adminProfile);
-                  showToast('Switched to Faculty Admin (Dr. Nupur Giri)', 'info');
-                }}
-                className="px-2.5 py-1 rounded-lg bg-white dark:bg-neutral-800 border border-[#E5E3DC] dark:border-neutral-700 text-[#171916] dark:text-neutral-200 font-bold text-[11px] hover:border-[#F97316] transition-colors cursor-pointer"
-              >
-                Switch to Admin Mode 🛡️
-              </button>
-            )}
-            {isAdmin && studentProfile && (
-              <button
-                onClick={() => {
-                  switchProfile(studentProfile);
-                  showToast('Switched to Student Host (Aarav Sharma)', 'info');
-                }}
-                className="px-2.5 py-1 rounded-lg bg-white dark:bg-neutral-800 border border-[#E5E3DC] dark:border-neutral-700 text-[#171916] dark:text-neutral-200 font-bold text-[11px] hover:border-[#F97316] transition-colors cursor-pointer"
-              >
-                Switch to Student Mode 🎒
-              </button>
-            )}
-          </div>
+          {isAdmin && (
+            <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-blue-100 text-blue-800 dark:bg-blue-950/80 dark:text-blue-300 flex items-center gap-1.5 border border-blue-200 dark:border-blue-800">
+              <ShieldCheck className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
+              <span>Admin Clearance Active</span>
+            </span>
+          )}
         </div>
       </div>
 
@@ -276,22 +260,25 @@ export const DailyUpdatesPage: React.FC = () => {
             </span>
           </button>
 
-          <button
-            onClick={() => setActiveTab('admin')}
-            className={`px-4 py-2.5 text-xs font-bold border-b-2 transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
-              activeTab === 'admin'
-                ? 'border-[#F97316] text-[#F97316]'
-                : 'border-transparent text-[#737871] hover:text-[#171916] dark:hover:text-neutral-200'
-            }`}
-          >
-            <ShieldCheck className="w-4 h-4 text-blue-600" />
-            <span>Admin Moderation Desk</span>
-            {pendingAdminCount > 0 && (
-              <span className="px-2 py-0.2 rounded-full text-[10px] font-bold bg-amber-500 text-white">
-                {pendingAdminCount}
-              </span>
-            )}
-          </button>
+          {/* Admin Moderation Tab - Strictly restricted to admin users */}
+          {isAdmin && (
+            <button
+              onClick={() => setActiveTab('admin')}
+              className={`px-4 py-2.5 text-xs font-bold border-b-2 transition-all flex items-center gap-2 whitespace-nowrap cursor-pointer ${
+                activeTab === 'admin'
+                  ? 'border-[#F97316] text-[#F97316]'
+                  : 'border-transparent text-[#737871] hover:text-[#171916] dark:hover:text-neutral-200'
+              }`}
+            >
+              <ShieldCheck className="w-4 h-4 text-blue-600" />
+              <span>Admin Moderation Desk</span>
+              {pendingAdminCount > 0 && (
+                <span className="px-2 py-0.2 rounded-full text-[10px] font-bold bg-amber-500 text-white">
+                  {pendingAdminCount}
+                </span>
+              )}
+            </button>
+          )}
         </div>
       </div>
 
@@ -642,8 +629,8 @@ export const DailyUpdatesPage: React.FC = () => {
         </div>
       )}
 
-      {/* VIEW 4: ADMIN MODERATION DESK */}
-      {activeTab === 'admin' && (
+      {/* VIEW 4: ADMIN MODERATION DESK (Admin role only) */}
+      {isAdmin && activeTab === 'admin' && (
         <AdminModerationQueue
           onOpenPreview={(u) => setSelectedUpdateForDetails(u)}
         />
