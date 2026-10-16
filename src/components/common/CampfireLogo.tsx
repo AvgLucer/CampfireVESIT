@@ -41,11 +41,11 @@ export const CampfireLogo: React.FC<CampfireLogoProps> = ({
       </div>
 
       <div className="flex flex-col">
-        <span className={`font-bold tracking-tight text-[#171916] ${textSize} leading-none`}>
+        <span className={`font-bold tracking-tight text-white dark:text-white ${textSize} leading-none drop-shadow-xs`}>
           campfire<span className="text-[#F97316]">.</span>
         </span>
         {showTagline && (
-          <span className="text-[11px] font-medium text-[#737871] tracking-normal mt-0.5">
+          <span className="text-[11px] font-medium text-neutral-300 tracking-normal mt-0.5">
             Your campus. Your people. Your place.
           </span>
         )}

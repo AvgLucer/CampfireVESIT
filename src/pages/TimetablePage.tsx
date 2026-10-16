@@ -177,16 +177,16 @@ export const TimetablePage: React.FC = () => {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 text-xs font-semibold text-[#737871] mb-1">
-            <span className="px-2 py-0.5 rounded-md bg-orange-50 dark:bg-orange-950/60 text-[#EA580C] dark:text-orange-400 font-bold border border-orange-200 dark:border-neutral-800">
+            <span className="px-2 py-0.5 rounded-md bg-orange-100 text-[#EA580C] dark:bg-orange-950/80 dark:text-orange-300 font-extrabold border border-orange-200 dark:border-neutral-800">
               College Hours: 8:30 AM – 3:30 PM
             </span>
             <span>·</span>
-            <span className="font-medium text-[#171916] dark:text-neutral-200">{formattedToday}</span>
+            <span className="font-bold text-[#171916] dark:text-white">{formattedToday}</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-[#171916] dark:text-neutral-100 tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-black text-[#171916] dark:text-white tracking-tight">
             My Timetable
           </h1>
-          <p className="text-xs sm:text-sm text-[#555952] dark:text-neutral-400 mt-0.5 max-w-2xl">
+          <p className="text-xs sm:text-sm text-[#444] dark:text-neutral-200 mt-0.5 max-w-2xl font-medium">
             Plan your lectures, track your day, and stay prepared.
           </p>
         </div>
@@ -195,7 +195,7 @@ export const TimetablePage: React.FC = () => {
         <div className="flex items-center gap-2.5 self-start md:self-auto shrink-0 flex-wrap">
           <button
             onClick={() => handleOpenAdd(selectedDay)}
-            className="px-4 py-2.5 bg-[#F97316] hover:bg-[#EA580C] text-white text-xs font-bold rounded-xl shadow-xs transition-colors flex items-center gap-2 cursor-pointer"
+            className="px-4 py-2.5 bg-[#F97316] hover:bg-[#EA580C] text-white text-xs font-extrabold rounded-xl shadow-xs transition-colors flex items-center gap-2 cursor-pointer"
           >
             <Plus className="w-4 h-4" />
             <span>Add Lecture</span>
@@ -203,10 +203,10 @@ export const TimetablePage: React.FC = () => {
 
           <button
             onClick={resetTimetableToDefault}
-            className="p-2.5 bg-white dark:bg-neutral-800 border border-[#E5E3DC] dark:border-neutral-700 hover:border-[#F97316] text-[#555952] dark:text-neutral-300 rounded-xl transition-colors cursor-pointer text-xs font-semibold flex items-center gap-1.5"
+            className="p-2.5 bg-white dark:bg-neutral-800 border border-[#E5E3DC] dark:border-neutral-700 hover:border-[#F97316] text-[#171916] dark:text-white rounded-xl transition-colors cursor-pointer text-xs font-bold flex items-center gap-1.5 shadow-2xs"
             title="Reset to default VESIT syllabus timetable"
           >
-            <RotateCcw className="w-3.5 h-3.5" />
+            <RotateCcw className="w-3.5 h-3.5 text-[#F97316]" />
             <span className="hidden sm:inline">Reset Schedule</span>
           </button>
         </div>
@@ -261,7 +261,7 @@ export const TimetablePage: React.FC = () => {
 
             {liveStatus.currentLecture ? (
               <div className="space-y-1">
-                <div className="text-lg sm:text-xl font-extrabold text-[#171916] dark:text-neutral-100 flex items-center gap-2 flex-wrap">
+                <div className="text-lg sm:text-xl font-black text-[#171916] dark:text-white flex items-center gap-2 flex-wrap">
                   <span>{liveStatus.currentLecture.subject || liveStatus.currentLecture.subjectName}</span>
                   {liveStatus.currentLecture.subjectCode && (
                     <span className="text-xs font-mono font-bold text-[#F97316]">
@@ -270,7 +270,7 @@ export const TimetablePage: React.FC = () => {
                   )}
                 </div>
 
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[#555952] dark:text-neutral-300">
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[#333] dark:text-neutral-200">
                   <span className="flex items-center gap-1 font-mono font-bold">
                     <Clock className="w-3.5 h-3.5 text-[#F97316]" />
                     {liveStatus.currentLecture.startTime} – {liveStatus.currentLecture.endTime}
@@ -283,53 +283,53 @@ export const TimetablePage: React.FC = () => {
                   )}
                   {(liveStatus.currentLecture.facultyName || liveStatus.currentLecture.faculty) && (
                     <span className="flex items-center gap-1">
-                      <User className="w-3.5 h-3.5 text-[#737871]" />
+                      <User className="w-3.5 h-3.5 text-[#737871] dark:text-neutral-400" />
                       {liveStatus.currentLecture.facultyName || liveStatus.currentLecture.faculty}
                     </span>
                   )}
                 </div>
 
-                <div className="text-xs font-mono font-bold text-[#EA580C] dark:text-orange-400">
+                <div className="text-xs font-mono font-extrabold text-[#EA580C] dark:text-orange-400">
                   ⏳ {liveStatus.formattedTimeRemaining}
                 </div>
               </div>
             ) : liveStatus.state === 'LUNCH_BREAK' ? (
               <div className="space-y-1">
-                <div className="text-base sm:text-lg font-extrabold text-amber-800 dark:text-amber-400 flex items-center gap-2">
+                <div className="text-base sm:text-lg font-black text-amber-900 dark:text-amber-200 flex items-center gap-2">
                   <Coffee className="w-5 h-5 text-amber-600" />
                   <span>College Lunch Break Active (12:30 PM – 1:30 PM)</span>
                 </div>
-                <p className="text-xs text-[#555952] dark:text-neutral-400">
+                <p className="text-xs text-[#444] dark:text-neutral-200 font-medium">
                   {liveStatus.formattedTimeRemaining}. Permanent campus interval. Enjoy your break!
                 </p>
               </div>
             ) : liveStatus.state === 'COLLEGE_OVER' ? (
               <div className="space-y-1">
-                <div className="text-base sm:text-lg font-extrabold text-[#171916] dark:text-neutral-100 flex items-center gap-2">
-                  <Moon className="w-5 h-5 text-neutral-600" />
+                <div className="text-base sm:text-lg font-black text-[#171916] dark:text-white flex items-center gap-2">
+                  <Moon className="w-5 h-5 text-neutral-600 dark:text-neutral-300" />
                   <span>College Hours Concluded for Today (3:30 PM)</span>
                 </div>
-                <p className="text-xs text-[#555952] dark:text-neutral-400">
+                <p className="text-xs text-[#444] dark:text-neutral-200 font-medium">
                   All scheduled lectures have finished. Check carpools for a ride home or visit Peer Learning rooms.
                 </p>
               </div>
             ) : liveStatus.state === 'NO_LECTURES_TODAY' ? (
               <div className="space-y-1">
-                <div className="text-base sm:text-lg font-extrabold text-[#171916] dark:text-neutral-100 flex items-center gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                <div className="text-base sm:text-lg font-black text-[#171916] dark:text-white flex items-center gap-2">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
                   <span>No Lectures Scheduled Today</span>
                 </div>
-                <p className="text-xs text-[#555952] dark:text-neutral-400">
+                <p className="text-xs text-[#444] dark:text-neutral-200 font-medium">
                   You have a free schedule today. Relax, self-study, or schedule a custom study block.
                 </p>
               </div>
             ) : liveStatus.state === 'UP_NEXT' && liveStatus.nextLecture ? (
               <div className="space-y-1">
-                <div className="text-base sm:text-lg font-extrabold text-[#171916] dark:text-neutral-100 flex items-center gap-2">
-                  <Play className="w-5 h-5 text-blue-600" />
+                <div className="text-base sm:text-lg font-black text-[#171916] dark:text-white flex items-center gap-2">
+                  <Play className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                   <span>Up Next: {liveStatus.nextLecture.subject || liveStatus.nextLecture.subjectName}</span>
                 </div>
-                <p className="text-xs text-[#555952] dark:text-neutral-400 font-mono">
+                <p className="text-xs text-[#444] dark:text-neutral-200 font-mono">
                   {liveStatus.formattedTimeRemaining} · Begins at {liveStatus.nextLecture.startTime}
                   {(liveStatus.nextLecture.classroom || liveStatus.nextLecture.room) && (
                     <span> in {liveStatus.nextLecture.classroom || liveStatus.nextLecture.room}</span>
@@ -338,10 +338,10 @@ export const TimetablePage: React.FC = () => {
               </div>
             ) : (
               <div className="space-y-1">
-                <div className="text-base sm:text-lg font-extrabold text-[#171916] dark:text-neutral-100">
+                <div className="text-base sm:text-lg font-black text-[#171916] dark:text-white">
                   Free Study Period
                 </div>
-                <p className="text-xs text-[#555952] dark:text-neutral-400">
+                <p className="text-xs text-[#444] dark:text-neutral-200 font-medium">
                   {liveStatus.formattedTimeRemaining || 'No active lecture currently underway.'}
                 </p>
               </div>
@@ -350,19 +350,19 @@ export const TimetablePage: React.FC = () => {
 
           {/* Up Next & Daily Summary Pill */}
           <div className="p-4 rounded-2xl bg-white dark:bg-neutral-800 border border-[#E5E3DC] dark:border-neutral-700 space-y-2 min-w-[260px] lg:max-w-xs shrink-0 shadow-2xs">
-            <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-[#737871]">
+            <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider text-[#737871] dark:text-neutral-400">
               <span>Next Up Today</span>
-              <span className="font-mono text-[#F97316]">
+              <span className="font-mono text-[#F97316] font-bold">
                 {liveStatus.remainingLecturesCount} remaining
               </span>
             </div>
 
             {liveStatus.nextLecture ? (
               <div className="text-xs">
-                <div className="font-bold text-[#171916] dark:text-neutral-100 truncate">
+                <div className="font-extrabold text-[#171916] dark:text-white truncate">
                   {liveStatus.nextLecture.subject || liveStatus.nextLecture.subjectName}
                 </div>
-                <div className="text-[11px] text-[#555952] dark:text-neutral-400 font-mono mt-0.5">
+                <div className="text-[11px] text-[#444] dark:text-neutral-200 font-mono mt-0.5">
                   {liveStatus.nextLecture.startTime} – {liveStatus.nextLecture.endTime}
                   {(liveStatus.nextLecture.classroom || liveStatus.nextLecture.room) && (
                     <span> · {liveStatus.nextLecture.classroom || liveStatus.nextLecture.room}</span>
@@ -370,7 +370,7 @@ export const TimetablePage: React.FC = () => {
                 </div>
               </div>
             ) : (
-              <div className="text-xs text-[#737871] italic">
+              <div className="text-xs text-[#737871] dark:text-neutral-400 italic">
                 No further lectures scheduled for today.
               </div>
             )}
@@ -450,8 +450,8 @@ export const TimetablePage: React.FC = () => {
                   onClick={() => setSelectedDay(w)}
                   className={`flex-1 sm:flex-initial py-2 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center justify-center gap-1.5 ${
                     isSelected
-                      ? 'bg-white dark:bg-neutral-800 text-[#171916] dark:text-white shadow-xs border border-[#E5E3DC] dark:border-neutral-700'
-                      : 'text-[#555952] dark:text-neutral-400 hover:text-[#171916] dark:hover:text-white'
+                      ? 'bg-white dark:bg-neutral-800 text-[#171916] dark:text-white shadow-xs border border-[#E5E3DC] dark:border-neutral-700 font-extrabold'
+                      : 'text-[#333] dark:text-white hover:text-[#F97316] dark:hover:text-[#F97316]'
                   }`}
                 >
                   <span>{WEEKDAY_LABELS[w].short}</span>
@@ -463,7 +463,7 @@ export const TimetablePage: React.FC = () => {
                       count > 0
                         ? isSelected
                           ? 'bg-orange-100 text-[#F97316] font-extrabold'
-                          : 'bg-neutral-200/70 dark:bg-neutral-800 text-[#737871]'
+                          : 'bg-neutral-200/80 dark:bg-neutral-700 text-[#171916] dark:text-white font-bold'
                         : 'text-neutral-400'
                     }`}
                   >
@@ -478,7 +478,7 @@ export const TimetablePage: React.FC = () => {
           <div className="flex items-center gap-2 self-end sm:self-auto shrink-0">
             <button
               onClick={() => setSelectedDay(currentDayOfWeek)}
-              className="px-3 py-1.5 bg-white dark:bg-neutral-800 border border-[#E5E3DC] dark:border-neutral-700 rounded-xl text-xs font-bold text-[#F97316] hover:bg-[#FFF8F5] transition-colors cursor-pointer"
+              className="px-3 py-1.5 bg-white dark:bg-neutral-800 border border-[#E5E3DC] dark:border-neutral-700 rounded-xl text-xs font-bold text-[#F97316] hover:bg-[#FFF8F5] transition-colors cursor-pointer shadow-2xs"
             >
               Jump to Today
             </button>
@@ -488,8 +488,8 @@ export const TimetablePage: React.FC = () => {
                 onClick={() => setViewMode('day')}
                 className={`px-3 py-1 rounded-lg font-bold transition-colors cursor-pointer ${
                   viewMode === 'day'
-                    ? 'bg-white dark:bg-neutral-800 text-[#171916] dark:text-white shadow-2xs'
-                    : 'text-[#737871]'
+                    ? 'bg-white dark:bg-neutral-800 text-[#171916] dark:text-white shadow-2xs font-extrabold'
+                    : 'text-[#666] dark:text-neutral-300'
                 }`}
               >
                 Day Timeline
@@ -498,8 +498,8 @@ export const TimetablePage: React.FC = () => {
                 onClick={() => setViewMode('week')}
                 className={`px-3 py-1 rounded-lg font-bold transition-colors cursor-pointer ${
                   viewMode === 'week'
-                    ? 'bg-white dark:bg-neutral-800 text-[#171916] dark:text-white shadow-2xs'
-                    : 'text-[#737871]'
+                    ? 'bg-white dark:bg-neutral-800 text-[#171916] dark:text-white shadow-2xs font-extrabold'
+                    : 'text-[#666] dark:text-neutral-300'
                 }`}
               >
                 Week Grid
@@ -516,21 +516,21 @@ export const TimetablePage: React.FC = () => {
               <div className="flex items-center gap-3">
                 <button
                   onClick={() => handleStepDay(-1)}
-                  className="p-1.5 rounded-lg border border-[#E5E3DC] dark:border-neutral-700 hover:bg-[#FAF9F5] dark:hover:bg-neutral-800 text-[#737871] hover:text-[#171916] cursor-pointer"
+                  className="p-1.5 rounded-lg border border-[#E5E3DC] dark:border-neutral-700 hover:bg-[#FAF9F5] dark:hover:bg-neutral-800 text-[#171916] dark:text-white cursor-pointer"
                   title="Previous Day"
                 >
                   <ChevronLeft className="w-4 h-4" />
                 </button>
                 <div>
-                  <h3 className="text-base font-extrabold text-[#171916] dark:text-neutral-100 flex items-center gap-2">
+                  <h3 className="text-base font-black text-[#171916] dark:text-white flex items-center gap-2">
                     <span>{WEEKDAY_LABELS[selectedDay].name}&rsquo;s Timetable</span>
                     {selectedDay === currentDayOfWeek && (
-                      <span className="text-[10px] font-bold text-[#F97316] bg-orange-50 dark:bg-orange-950/60 px-2 py-0.5 rounded-md border border-orange-200 dark:border-orange-900">
+                      <span className="text-[10px] font-extrabold text-[#F97316] bg-orange-100 dark:bg-orange-950/80 px-2 py-0.5 rounded-md border border-orange-200 dark:border-orange-800">
                         Today
                       </span>
                     )}
                   </h3>
-                  <div className="text-xs text-[#737871]">
+                  <div className="text-xs text-[#555] dark:text-neutral-200 font-medium">
                     {activeDayLectures.length === 0
                       ? 'No lectures scheduled · Free day for self-study'
                       : `${activeDayLectures.length} scheduled lecture${activeDayLectures.length === 1 ? '' : 's'} · ${Math.floor(totalDayDurationMinutes / 60)}h ${totalDayDurationMinutes % 60}m instruction total`}
@@ -538,7 +538,7 @@ export const TimetablePage: React.FC = () => {
                 </div>
                 <button
                   onClick={() => handleStepDay(1)}
-                  className="p-1.5 rounded-lg border border-[#E5E3DC] dark:border-neutral-700 hover:bg-[#FAF9F5] dark:hover:bg-neutral-800 text-[#737871] hover:text-[#171916] cursor-pointer"
+                  className="p-1.5 rounded-lg border border-[#E5E3DC] dark:border-neutral-700 hover:bg-[#FAF9F5] dark:hover:bg-neutral-800 text-[#171916] dark:text-white cursor-pointer"
                   title="Next Day"
                 >
                   <ChevronRight className="w-4 h-4" />
@@ -547,7 +547,7 @@ export const TimetablePage: React.FC = () => {
 
               <button
                 onClick={() => handleOpenAdd(selectedDay)}
-                className="px-3.5 py-1.5 bg-[#FAF9F5] dark:bg-neutral-800 hover:bg-[#FFF8F5] border border-[#D7D4CB] dark:border-neutral-700 hover:border-[#F97316] text-xs font-bold text-[#171916] dark:text-neutral-200 hover:text-[#F97316] rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer"
+                className="px-3.5 py-1.5 bg-[#FAF9F5] dark:bg-neutral-800 hover:bg-[#FFF8F5] border border-[#D7D4CB] dark:border-neutral-700 hover:border-[#F97316] text-xs font-bold text-[#171916] dark:text-white hover:text-[#F97316] rounded-xl transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs"
               >
                 <Plus className="w-3.5 h-3.5 text-[#F97316]" />
                 <span>Add Lecture</span>
@@ -557,10 +557,10 @@ export const TimetablePage: React.FC = () => {
             {/* TIMELINE WITH INTEGRATED PERMANENT LUNCH BREAK & EXPLICIT FREE PERIODS */}
             <div className="p-4 sm:p-6 rounded-3xl bg-white dark:bg-neutral-900 border border-[#E5E3DC] dark:border-neutral-800 shadow-xs space-y-4">
               {/* College Opening Marker */}
-              <div className="flex items-center gap-3 text-[11px] font-mono text-[#737871] pb-1 border-b border-[#E5E3DC] dark:border-neutral-800">
-                <span className="font-bold text-[#171916] dark:text-neutral-200">08:30 AM</span>
+              <div className="flex items-center gap-3 text-[11px] font-mono text-[#737871] dark:text-neutral-300 pb-1 border-b border-[#E5E3DC] dark:border-neutral-800">
+                <span className="font-bold text-[#171916] dark:text-white">08:30 AM</span>
                 <span className="h-px bg-neutral-200 dark:bg-neutral-800 flex-1" />
-                <span>College Opens</span>
+                <span className="font-semibold text-[#171916] dark:text-white">College Opens</span>
               </div>
 
               {/* MORNING SESSIONS (8:30 AM to 12:30 PM) */}
@@ -934,24 +934,24 @@ export const TimetablePage: React.FC = () => {
 
             <div className="space-y-1">
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-sm font-extrabold text-[#171916] dark:text-neutral-100">
+                <span className="text-sm font-black text-[#171916] dark:text-white">
                   {subjectTitle}
                 </span>
                 {lecture.subjectCode && (
-                  <span className="text-xs font-mono font-bold text-[#F97316] bg-orange-50 dark:bg-orange-950/50 px-2 py-0.5 rounded">
+                  <span className="text-xs font-mono font-bold text-[#F97316] bg-orange-100 dark:bg-orange-950/80 px-2 py-0.5 rounded border border-orange-200 dark:border-orange-900">
                     {lecture.subjectCode}
                   </span>
                 )}
                 {isActiveNow && (
-                  <span className="text-[10px] font-extrabold uppercase tracking-wide bg-[#F97316] text-white px-2 py-0.5 rounded-full">
+                  <span className="text-[10px] font-extrabold uppercase tracking-wide bg-[#F97316] text-white px-2 py-0.5 rounded-full shadow-xs">
                     In Progress Now
                   </span>
                 )}
               </div>
 
               {/* Time and location details */}
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[#555952] dark:text-neutral-300">
-                <span className="flex items-center gap-1 font-mono font-bold text-[#171916] dark:text-neutral-200">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[#333] dark:text-neutral-200 font-medium">
+                <span className="flex items-center gap-1 font-mono font-bold text-[#171916] dark:text-white">
                   <Clock className="w-3.5 h-3.5 text-[#F97316]" />
                   <span>
                     {lecture.startTime} – {lecture.endTime} ({duration} mins)
@@ -959,7 +959,7 @@ export const TimetablePage: React.FC = () => {
                 </span>
 
                 {room && (
-                  <span className="flex items-center gap-1">
+                  <span className="flex items-center gap-1 font-semibold text-[#171916] dark:text-white">
                     <MapPin className="w-3.5 h-3.5 text-[#F97316]" />
                     <span>
                       {room}
@@ -969,8 +969,8 @@ export const TimetablePage: React.FC = () => {
                 )}
 
                 {faculty && (
-                  <span className="flex items-center gap-1">
-                    <User className="w-3.5 h-3.5 text-[#737871]" />
+                  <span className="flex items-center gap-1 text-[#555] dark:text-neutral-300">
+                    <User className="w-3.5 h-3.5 text-[#737871] dark:text-neutral-400" />
                     <span>{faculty}</span>
                   </span>
                 )}

@@ -34,39 +34,39 @@ export const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = (
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
-      <div className="relative w-full max-w-md bg-white dark:bg-neutral-900 rounded-3xl shadow-2xl border border-[#E5E3DC] dark:border-neutral-800 p-6 space-y-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs animate-in fade-in">
+      <div className="relative w-full max-w-md bg-[#141514] text-white rounded-3xl shadow-2xl border border-neutral-700 p-6 space-y-4 timetable-modal">
         <div className="flex items-start justify-between">
-          <div className="w-12 h-12 rounded-2xl bg-rose-100 dark:bg-rose-950/60 text-rose-600 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-2xl bg-rose-950/80 border border-rose-800 text-rose-400 flex items-center justify-center">
             <Trash2 className="w-6 h-6" />
           </div>
           <button
             onClick={onClose}
-            className="p-1 text-[#737871] hover:text-[#171916] dark:hover:text-white rounded-lg transition-colors cursor-pointer"
+            className="p-1 text-neutral-400 hover:text-white rounded-lg transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         <div>
-          <h3 className="text-base sm:text-lg font-extrabold text-[#171916] dark:text-neutral-100">
+          <h3 className="text-base sm:text-lg font-extrabold text-white">
             Delete Lecture from Timetable?
           </h3>
-          <p className="text-xs text-[#555952] dark:text-neutral-400 mt-1">
+          <p className="text-xs text-neutral-300 mt-1">
             Are you sure you want to remove this lecture from your personal schedule? This will update your timetable immediately.
           </p>
         </div>
 
         {/* Lecture card preview */}
-        <div className="p-3.5 rounded-2xl bg-[#FAF9F5] dark:bg-neutral-800 border border-[#E5E3DC] dark:border-neutral-700 space-y-1">
-          <div className="text-xs font-bold text-[#171916] dark:text-neutral-100">
-            {subjectName} {lecture.subjectCode && <span className="font-mono text-[#737871]">({lecture.subjectCode})</span>}
+        <div className="p-3.5 rounded-2xl bg-[#222422] border border-neutral-700 space-y-1">
+          <div className="text-xs font-bold text-white">
+            {subjectName} {lecture.subjectCode && <span className="font-mono text-[#F97316]">({lecture.subjectCode})</span>}
           </div>
-          <div className="text-xs text-[#555952] dark:text-neutral-400 font-mono">
+          <div className="text-xs text-neutral-200 font-mono font-semibold">
             {dayName} · {lecture.startTime} – {lecture.endTime}
           </div>
           {(lecture.classroom || lecture.room) && (
-            <div className="text-[11px] text-[#737871]">
+            <div className="text-[11px] text-neutral-300">
               Room: {lecture.classroom || lecture.room}
             </div>
           )}
@@ -77,7 +77,7 @@ export const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = (
             type="button"
             onClick={onClose}
             disabled={isDeleting}
-            className="px-4 py-2.5 rounded-xl border border-[#D7D4CB] dark:border-neutral-700 hover:bg-[#FAF9F5] dark:hover:bg-neutral-800 text-xs font-bold text-[#555952] dark:text-neutral-300 transition-colors cursor-pointer"
+            className="px-4 py-2.5 rounded-xl border border-neutral-700 bg-[#222422] hover:bg-neutral-700 text-xs font-bold text-white transition-colors cursor-pointer"
           >
             Cancel
           </button>

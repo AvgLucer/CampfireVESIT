@@ -222,19 +222,19 @@ export const AddEditLectureModal: React.FC<AddEditLectureModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs overflow-y-auto animate-in fade-in">
-      <div className="relative w-full max-w-lg bg-white dark:bg-neutral-900 rounded-3xl shadow-2xl border border-[#E5E3DC] dark:border-neutral-800 overflow-hidden my-8">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/75 backdrop-blur-xs overflow-y-auto animate-in fade-in">
+      <div className="relative w-full max-w-lg bg-[#141514] text-white rounded-3xl shadow-2xl border border-neutral-700 overflow-hidden my-8 timetable-modal">
         {/* Header */}
-        <div className="p-5 border-b border-[#E5E3DC] dark:border-neutral-800 flex items-center justify-between">
+        <div className="p-5 border-b border-neutral-800 flex items-center justify-between bg-[#191b19]">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-orange-100 dark:bg-orange-950/60 text-[#F97316] flex items-center justify-center font-bold">
+            <div className="w-10 h-10 rounded-2xl bg-[#F97316]/20 text-[#F97316] flex items-center justify-center font-bold">
               <Calendar className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base sm:text-lg font-extrabold text-[#171916] dark:text-neutral-100">
+              <h2 className="text-base sm:text-lg font-extrabold text-white">
                 {isEditing ? 'Edit Lecture' : 'Add New Lecture'}
               </h2>
-              <p className="text-xs text-[#555952] dark:text-neutral-400">
+              <p className="text-xs text-neutral-300">
                 College hours: 8:30 AM – 3:30 PM · Lunch: 12:30 PM – 1:30 PM
               </p>
             </div>
@@ -242,18 +242,18 @@ export const AddEditLectureModal: React.FC<AddEditLectureModalProps> = ({
 
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-[#737871] hover:text-[#171916] dark:hover:text-neutral-100 hover:bg-[#FAF9F5] dark:hover:bg-neutral-800 transition-colors cursor-pointer"
+            className="p-2 rounded-xl text-neutral-400 hover:text-white hover:bg-neutral-800 transition-colors cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+        <form onSubmit={handleSubmit} className="p-5 sm:p-6 space-y-4 max-h-[75vh] overflow-y-auto bg-[#141514]">
           {/* Day of Week Selector */}
           <div>
-            <label className="block text-xs font-bold text-[#171916] dark:text-neutral-200 mb-1.5">
-              Day of the Week <span className="text-rose-500">*</span>
+            <label className="block text-xs font-bold text-white mb-1.5">
+              Day of the Week <span className="text-rose-400">*</span>
             </label>
             <div className="grid grid-cols-4 sm:grid-cols-7 gap-1.5">
               {WEEKDAYS.map((w) => (
@@ -263,8 +263,8 @@ export const AddEditLectureModal: React.FC<AddEditLectureModalProps> = ({
                   onClick={() => setDay(w)}
                   className={`py-2 px-1 rounded-xl text-xs font-bold transition-all cursor-pointer text-center ${
                     day === w
-                      ? 'bg-[#F97316] text-white shadow-xs'
-                      : 'bg-[#FAF9F5] dark:bg-neutral-800 text-[#555952] dark:text-neutral-400 hover:text-[#171916] dark:hover:text-white border border-[#E5E3DC] dark:border-neutral-700'
+                      ? 'bg-[#F97316] text-white shadow-xs ring-2 ring-[#F97316]/40'
+                      : 'bg-[#222422] text-white hover:bg-neutral-700 border border-neutral-700'
                   }`}
                 >
                   <span className="block">{WEEKDAY_LABELS[w].short}</span>
@@ -276,24 +276,24 @@ export const AddEditLectureModal: React.FC<AddEditLectureModalProps> = ({
           {/* Subject Name and Code */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="sm:col-span-2">
-              <label className="block text-xs font-bold text-[#171916] dark:text-neutral-200 mb-1">
-                Subject Name <span className="text-rose-500">*</span>
+              <label className="block text-xs font-bold text-white mb-1">
+                Subject Name <span className="text-rose-400">*</span>
               </label>
               <div className="relative">
-                <BookOpen className="w-4 h-4 text-[#737871] absolute left-3 top-1/2 -translate-y-1/2" />
+                <BookOpen className="w-4 h-4 text-neutral-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   required
                   placeholder="e.g. Applied Mathematics II"
                   value={subject}
                   onChange={(e) => setSubject(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-[#D7D4CB] dark:border-neutral-700 bg-[#FAF9F5] dark:bg-neutral-800 text-xs text-[#171916] dark:text-neutral-100 font-semibold focus:outline-hidden focus:border-[#F97316]"
+                  className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-neutral-700 bg-[#222422] text-xs text-white font-semibold focus:outline-hidden focus:border-[#F97316] placeholder:text-neutral-400"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-[#171916] dark:text-neutral-200 mb-1">
+              <label className="block text-xs font-bold text-white mb-1">
                 Subject Code
               </label>
               <input
@@ -301,26 +301,26 @@ export const AddEditLectureModal: React.FC<AddEditLectureModalProps> = ({
                 placeholder="e.g. FEC201"
                 value={subjectCode}
                 onChange={(e) => setSubjectCode(e.target.value.toUpperCase())}
-                className="w-full px-3 py-2.5 rounded-xl border border-[#D7D4CB] dark:border-neutral-700 bg-[#FAF9F5] dark:bg-neutral-800 text-xs font-mono text-[#171916] dark:text-neutral-100 font-semibold focus:outline-hidden focus:border-[#F97316]"
+                className="w-full px-3 py-2.5 rounded-xl border border-neutral-700 bg-[#222422] text-xs font-mono text-white font-semibold focus:outline-hidden focus:border-[#F97316] placeholder:text-neutral-400"
               />
             </div>
           </div>
 
           {/* Time Scheduling Rules Box */}
-          <div className="p-4 rounded-2xl bg-[#FAF9F5] dark:bg-neutral-800/60 border border-[#E5E3DC] dark:border-neutral-700 space-y-3">
-            <div className="flex items-center justify-between text-xs font-bold text-[#171916] dark:text-neutral-200">
+          <div className="p-4 rounded-2xl bg-[#1c1e1c] border border-neutral-700 space-y-3">
+            <div className="flex items-center justify-between text-xs font-bold text-white">
               <div className="flex items-center gap-1.5">
                 <Clock className="w-4 h-4 text-[#F97316]" />
-                <span>Lecture Timing (8:30 AM – 3:30 PM)</span>
+                <span className="text-white">Lecture Timing (8:30 AM – 3:30 PM)</span>
               </div>
-              <span className="text-[10px] text-amber-700 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/50 px-2 py-0.5 rounded-md border border-amber-200 dark:border-amber-800">
+              <span className="text-[10px] font-bold text-amber-200 bg-amber-950/80 px-2 py-0.5 rounded-md border border-amber-600">
                 Lunch 12:30–1:30 PM Protected
               </span>
             </div>
 
             {/* Start Time Presets */}
             <div>
-              <span className="text-[11px] font-semibold text-[#737871] block mb-1.5">
+              <span className="text-[11px] font-bold text-white block mb-1.5">
                 Popular Start Times:
               </span>
               <div className="flex flex-wrap gap-1.5">
@@ -329,10 +329,10 @@ export const AddEditLectureModal: React.FC<AddEditLectureModalProps> = ({
                     key={preset.time}
                     type="button"
                     onClick={() => applyStartTimePreset(preset.time)}
-                    className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-colors cursor-pointer border ${
+                    className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-colors cursor-pointer border ${
                       startTime === preset.time
-                        ? 'bg-[#171916] text-white dark:bg-white dark:text-neutral-900 border-transparent'
-                        : 'bg-white dark:bg-neutral-800 text-[#555952] dark:text-neutral-300 border-[#E5E3DC] dark:border-neutral-700 hover:border-[#F97316]'
+                        ? 'bg-[#F97316] text-white border-transparent shadow-xs'
+                        : 'bg-[#222422] text-white border-neutral-700 hover:border-[#F97316]'
                     }`}
                   >
                     {preset.label}
@@ -344,8 +344,8 @@ export const AddEditLectureModal: React.FC<AddEditLectureModalProps> = ({
             {/* Time Pickers (Start & End) */}
             <div className="grid grid-cols-2 gap-3 pt-1">
               <div>
-                <label className="block text-xs font-bold text-[#171916] dark:text-neutral-200 mb-1">
-                  Start Time <span className="text-rose-500">*</span>
+                <label className="block text-xs font-bold text-white mb-1">
+                  Start Time <span className="text-rose-400">*</span>
                 </label>
                 <input
                   type="time"
@@ -354,16 +354,16 @@ export const AddEditLectureModal: React.FC<AddEditLectureModalProps> = ({
                   max="15:30"
                   value={startTime}
                   onChange={(e) => setStartTime(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-[#D7D4CB] dark:border-neutral-700 bg-white dark:bg-neutral-800 text-xs font-mono font-bold text-[#171916] dark:text-neutral-100"
+                  className="w-full px-3 py-2 rounded-xl border border-neutral-700 bg-[#222422] text-xs font-mono font-bold text-white"
                 />
-                <span className="text-[10px] text-[#737871] mt-0.5 block font-mono">
+                <span className="text-[11px] text-neutral-200 mt-0.5 block font-mono font-bold">
                   {minutesToFormatted12h(parseTimeToMinutes(startTime))}
                 </span>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#171916] dark:text-neutral-200 mb-1">
-                  End Time <span className="text-rose-500">*</span>
+                <label className="block text-xs font-bold text-white mb-1">
+                  End Time <span className="text-rose-400">*</span>
                 </label>
                 <input
                   type="time"
@@ -372,9 +372,9 @@ export const AddEditLectureModal: React.FC<AddEditLectureModalProps> = ({
                   max="15:30"
                   value={endTime}
                   onChange={(e) => setEndTime(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-[#D7D4CB] dark:border-neutral-700 bg-white dark:bg-neutral-800 text-xs font-mono font-bold text-[#171916] dark:text-neutral-100"
+                  className="w-full px-3 py-2 rounded-xl border border-neutral-700 bg-[#222422] text-xs font-mono font-bold text-white"
                 />
-                <span className="text-[10px] text-[#737871] mt-0.5 block font-mono">
+                <span className="text-[11px] text-neutral-200 mt-0.5 block font-mono font-bold">
                   {minutesToFormatted12h(parseTimeToMinutes(endTime))}
                 </span>
               </div>
@@ -382,7 +382,7 @@ export const AddEditLectureModal: React.FC<AddEditLectureModalProps> = ({
 
             {/* Duration presets */}
             <div>
-              <span className="text-[11px] font-semibold text-[#737871] block mb-1.5">
+              <span className="text-[11px] font-bold text-white block mb-1.5">
                 Quick Duration Presets:
               </span>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
@@ -391,7 +391,7 @@ export const AddEditLectureModal: React.FC<AddEditLectureModalProps> = ({
                     key={p.minutes}
                     type="button"
                     onClick={() => applyDurationPreset(p.minutes)}
-                    className="px-2 py-1.5 rounded-lg bg-white dark:bg-neutral-800 border border-[#E5E3DC] dark:border-neutral-700 hover:border-[#F97316] text-[11px] font-semibold text-[#555952] dark:text-neutral-300 hover:text-[#171916] text-center cursor-pointer transition-colors"
+                    className="px-2 py-1.5 rounded-lg bg-[#222422] border border-neutral-700 hover:border-[#F97316] text-[11px] font-bold text-white text-center cursor-pointer transition-colors"
                   >
                     {p.label}
                   </button>
@@ -402,11 +402,11 @@ export const AddEditLectureModal: React.FC<AddEditLectureModalProps> = ({
             {/* Live Interval Validation Status Notice */}
             <div className="pt-1">
               {validationStatus.isValid ? (
-                <div className="p-2.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-800 dark:text-emerald-300 text-xs flex items-center gap-2">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                <div className="p-2.5 rounded-xl bg-emerald-950/80 border border-emerald-500 text-white text-xs flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
                   <div className="flex-1">
                     <span className="font-bold">Schedule Valid: </span>
-                    <span>
+                    <span className="text-neutral-100">
                       {validationStatus.formattedInterval} ({validationStatus.durationMinutes} mins) on{' '}
                       {WEEKDAY_LABELS[day].name}
                     </span>
@@ -414,9 +414,9 @@ export const AddEditLectureModal: React.FC<AddEditLectureModalProps> = ({
                 </div>
               ) : (
                 validationStatus.message && (
-                  <div className="p-2.5 rounded-xl bg-rose-50 dark:bg-rose-950/40 border border-rose-200 dark:border-rose-800 text-rose-800 dark:text-rose-300 text-xs flex items-start gap-2">
-                    <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
-                    <span className="leading-snug">{validationStatus.message}</span>
+                  <div className="p-2.5 rounded-xl bg-rose-950/80 border border-rose-500 text-white text-xs flex items-start gap-2">
+                    <AlertCircle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                    <span className="leading-snug text-neutral-100">{validationStatus.message}</span>
                   </div>
                 )
               )}
@@ -426,33 +426,33 @@ export const AddEditLectureModal: React.FC<AddEditLectureModalProps> = ({
           {/* Faculty and Room details */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-bold text-[#171916] dark:text-neutral-200 mb-1">
+              <label className="block text-xs font-bold text-white mb-1">
                 Faculty Name (Optional)
               </label>
               <div className="relative">
-                <User className="w-4 h-4 text-[#737871] absolute left-3 top-1/2 -translate-y-1/2" />
+                <User className="w-4 h-4 text-neutral-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   placeholder="e.g. Prof. S. R. Kulkarni"
                   value={facultyName}
                   onChange={(e) => setFacultyName(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-[#D7D4CB] dark:border-neutral-700 bg-[#FAF9F5] dark:bg-neutral-800 text-xs text-[#171916] dark:text-neutral-100 font-semibold focus:outline-hidden focus:border-[#F97316]"
+                  className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-neutral-700 bg-[#222422] text-xs text-white font-semibold focus:outline-hidden focus:border-[#F97316] placeholder:text-neutral-400"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-[#171916] dark:text-neutral-200 mb-1">
+              <label className="block text-xs font-bold text-white mb-1">
                 Classroom or Room (Optional)
               </label>
               <div className="relative">
-                <MapPin className="w-4 h-4 text-[#737871] absolute left-3 top-1/2 -translate-y-1/2" />
+                <MapPin className="w-4 h-4 text-neutral-400 absolute left-3 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   placeholder="e.g. Classroom 302"
                   value={classroom}
                   onChange={(e) => setClassroom(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-[#D7D4CB] dark:border-neutral-700 bg-[#FAF9F5] dark:bg-neutral-800 text-xs text-[#171916] dark:text-neutral-100 font-semibold focus:outline-hidden focus:border-[#F97316]"
+                  className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-neutral-700 bg-[#222422] text-xs text-white font-semibold focus:outline-hidden focus:border-[#F97316] placeholder:text-neutral-400"
                 />
               </div>
             </div>
@@ -460,36 +460,36 @@ export const AddEditLectureModal: React.FC<AddEditLectureModalProps> = ({
 
           {/* Notes */}
           <div>
-            <label className="block text-xs font-bold text-[#171916] dark:text-neutral-200 mb-1">
+            <label className="block text-xs font-bold text-white mb-1">
               Lecture Notes or Topics (Optional)
             </label>
             <div className="relative">
-              <FileText className="w-4 h-4 text-[#737871] absolute left-3 top-3" />
+              <FileText className="w-4 h-4 text-neutral-400 absolute left-3 top-3" />
               <textarea
                 rows={2}
                 placeholder="e.g. Bring scientific calculator; chapter 4 assignment due."
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 rounded-xl border border-[#D7D4CB] dark:border-neutral-700 bg-[#FAF9F5] dark:bg-neutral-800 text-xs text-[#171916] dark:text-neutral-100 font-medium focus:outline-hidden focus:border-[#F97316]"
+                className="w-full pl-9 pr-3 py-2 rounded-xl border border-neutral-700 bg-[#222422] text-xs text-white font-medium focus:outline-hidden focus:border-[#F97316] placeholder:text-neutral-400"
               />
             </div>
           </div>
 
           {/* Error Banner if any */}
           {formError && (
-            <div className="p-3 rounded-xl bg-rose-50 dark:bg-rose-950/50 border border-rose-300 dark:border-rose-800 text-rose-700 dark:text-rose-300 text-xs flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 shrink-0" />
+            <div className="p-3 rounded-xl bg-rose-950/80 border border-rose-500 text-white text-xs flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
               <span>{formError}</span>
             </div>
           )}
 
           {/* Actions */}
-          <div className="pt-2 flex items-center justify-end gap-2.5 border-t border-[#E5E3DC] dark:border-neutral-800">
+          <div className="pt-3 flex items-center justify-end gap-2.5 border-t border-neutral-800">
             <button
               type="button"
               onClick={onClose}
               disabled={isSubmitting}
-              className="px-4 py-2.5 rounded-xl border border-[#D7D4CB] dark:border-neutral-700 hover:bg-[#FAF9F5] dark:hover:bg-neutral-800 text-xs font-bold text-[#555952] dark:text-neutral-300 transition-colors cursor-pointer"
+              className="px-4 py-2.5 rounded-xl border border-neutral-700 bg-[#222422] hover:bg-neutral-700 text-xs font-bold text-white transition-colors cursor-pointer"
             >
               Cancel
             </button>
@@ -498,7 +498,7 @@ export const AddEditLectureModal: React.FC<AddEditLectureModalProps> = ({
               disabled={isSubmitting || !validationStatus.isValid}
               className={`px-5 py-2.5 rounded-xl text-xs font-bold text-white shadow-xs transition-all flex items-center gap-2 ${
                 isSubmitting || !validationStatus.isValid
-                  ? 'bg-neutral-400 cursor-not-allowed opacity-60'
+                  ? 'bg-neutral-600 cursor-not-allowed opacity-50'
                   : 'bg-[#F97316] hover:bg-[#EA580C] cursor-pointer'
               }`}
             >

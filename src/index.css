@@ -59,28 +59,61 @@
 }
 
 /* =========================================================================
-   UNIVERSAL OPPOSITE CONTRAST FOR ALL FORM FIELDS (INPUTS, SELECTS, TEXTAREAS)
+   UNIVERSAL CONTRAST FOR ALL FORM FIELDS & TIMETABLE CREATION MODAL
    ========================================================================= */
 
-/* Default / Classic Theme: Light surface -> Ultra-Dark high contrast text */
+/* Default form elements */
 input,
 select,
 textarea {
-  color: #05070A !important;
+  font-weight: 600;
+  caret-color: #F97316;
+}
+
+/* Dark Modal & Timetable Creation Form Fields: Crisp White Text */
+.timetable-modal,
+.modal-dark {
+  background-color: #141514 !important;
+  color: #FFFFFF !important;
+}
+
+.timetable-modal input,
+.timetable-modal select,
+.timetable-modal textarea,
+.modal-dark input,
+.modal-dark select,
+.modal-dark textarea,
+.dark input,
+.dark select,
+.dark textarea {
+  color: #FFFFFF !important;
+  background-color: #222422 !important;
+  border-color: #444742 !important;
   font-weight: 600 !important;
-  caret-color: #F97316 !important;
 }
 
-input::placeholder,
-textarea::placeholder {
-  color: #4B5563 !important;
+.timetable-modal input::placeholder,
+.timetable-modal textarea::placeholder,
+.modal-dark input::placeholder,
+.modal-dark textarea::placeholder,
+.dark input::placeholder,
+.dark textarea::placeholder {
+  color: #A3A8A0 !important;
   opacity: 1 !important;
-  font-weight: 500 !important;
 }
 
-label {
-  color: #0A0D14 !important;
+.timetable-modal label,
+.modal-dark label,
+.dark label {
+  color: #FFFFFF !important;
   font-weight: 700 !important;
+}
+
+/* Ensure time input clock icon and text in webkit browsers are bright white */
+.timetable-modal input[type="time"]::-webkit-calendar-picker-indicator,
+.modal-dark input[type="time"]::-webkit-calendar-picker-indicator,
+.dark input[type="time"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
 }
 
 /* =========================================================================

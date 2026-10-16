@@ -72,12 +72,12 @@ export const Navbar: React.FC = () => {
     <>
       <header className="sticky top-0 z-30 flex items-center justify-between gap-4 sm:gap-6 px-4 sm:px-6 py-3 bg-white/95 dark:bg-neutral-900/95 backdrop-blur-md border-b border-[#E5E3DC] dark:border-neutral-800">
         {/* Zone 1: Brand wordmark */}
-        <Link to="/" className="whitespace-nowrap shrink-0 hover:opacity-90 transition-opacity">
+        <Link to="/" className="whitespace-nowrap shrink-0 px-3.5 py-1.5 rounded-2xl bg-[#171916] text-white shadow-xs border border-neutral-800 flex items-center hover:border-[#F97316] transition-all">
           <CampfireLogo size="md" />
         </Link>
 
         {/* Zone 2: Concise single-line nav links */}
-        <nav className="hidden lg:flex items-center gap-6 text-xs font-semibold text-[#555952] dark:text-neutral-400">
+        <nav className="hidden lg:flex items-center gap-6 text-xs font-bold text-[#171916] dark:text-neutral-200">
           {navLinks.map((link) => {
             const isActive = location.pathname === link.path;
             return (
@@ -85,7 +85,7 @@ export const Navbar: React.FC = () => {
                 key={link.path}
                 to={link.path}
                 className={`whitespace-nowrap shrink-0 transition-colors py-1 relative ${
-                  isActive ? 'text-[#F97316] font-bold' : 'hover:text-[#171916] dark:hover:text-neutral-100'
+                  isActive ? 'text-[#F97316] font-extrabold' : 'hover:text-[#F97316] dark:hover:text-white'
                 }`}
               >
                 {link.label}

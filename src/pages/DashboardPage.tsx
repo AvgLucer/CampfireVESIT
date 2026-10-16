@@ -534,27 +534,27 @@ export const DashboardPage: React.FC = () => {
                     ⏳ {liveStatus.formattedTimeRemaining}
                   </span>
                 </div>
-                <div className="text-base font-extrabold text-[#171916] dark:text-neutral-100">
+                <div className="text-base font-black text-[#171916] dark:text-white">
                   {liveStatus.currentLecture.subject || liveStatus.currentLecture.subjectName}
                   {liveStatus.currentLecture.subjectCode && (
-                    <span className="text-xs font-mono font-bold text-[#737871] ml-2">
+                    <span className="text-xs font-mono font-bold text-[#F97316] ml-2">
                       ({liveStatus.currentLecture.subjectCode})
                     </span>
                   )}
                 </div>
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[#555952] dark:text-neutral-300 font-medium">
-                  <span className="flex items-center gap-1 font-mono">
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-[#333] dark:text-neutral-200 font-medium">
+                  <span className="flex items-center gap-1 font-mono font-bold text-[#171916] dark:text-white">
                     <Clock className="w-3.5 h-3.5 text-[#F97316]" />
                     {liveStatus.currentLecture.startTime} – {liveStatus.currentLecture.endTime}
                   </span>
                   {(liveStatus.currentLecture.classroom || liveStatus.currentLecture.room) && (
-                    <span className="flex items-center gap-1">
+                    <span className="flex items-center gap-1 font-semibold text-[#171916] dark:text-white">
                       <MapPin className="w-3.5 h-3.5 text-[#F97316]" />
                       Room: {liveStatus.currentLecture.classroom || liveStatus.currentLecture.room}
                     </span>
                   )}
                   {(liveStatus.currentLecture.facultyName || liveStatus.currentLecture.faculty) && (
-                    <span className="flex items-center gap-1 text-[11px] text-[#737871]">
+                    <span className="flex items-center gap-1 text-[11px] text-[#666] dark:text-neutral-300">
                       Faculty: {liveStatus.currentLecture.facultyName || liveStatus.currentLecture.faculty}
                     </span>
                   )}
@@ -567,10 +567,10 @@ export const DashboardPage: React.FC = () => {
                     <Coffee className="w-5 h-5" />
                   </div>
                   <div>
-                    <div className="text-xs font-extrabold text-amber-900 dark:text-amber-200 uppercase tracking-wide">
+                    <div className="text-xs font-black text-amber-950 dark:text-amber-200 uppercase tracking-wide">
                       NOW — Campus Lunch Break
                     </div>
-                    <div className="text-xs text-amber-800 dark:text-amber-300 font-mono">
+                    <div className="text-xs text-amber-800 dark:text-amber-300 font-mono font-bold">
                       12:30 PM – 1:30 PM · {liveStatus.formattedTimeRemaining}
                     </div>
                   </div>
@@ -579,20 +579,20 @@ export const DashboardPage: React.FC = () => {
             ) : liveStatus.nextLecture ? (
               <div className="p-4 rounded-xl bg-[#FAF9F5] dark:bg-neutral-800 border border-[#E5E3DC] dark:border-neutral-700 space-y-1.5">
                 <div className="flex items-center justify-between text-[11px]">
-                  <span className="font-extrabold uppercase tracking-wider text-[#737871]">
+                  <span className="font-extrabold uppercase tracking-wider text-[#737871] dark:text-neutral-400">
                     {liveStatus.state === 'UP_NEXT' ? 'UP NEXT' : 'FREE PERIOD — NEXT LECTURE'}
                   </span>
                   <span className="text-xs font-mono font-bold text-[#F97316]">
                     {liveStatus.formattedTimeRemaining}
                   </span>
                 </div>
-                <div className="text-sm font-extrabold text-[#171916] dark:text-neutral-100">
+                <div className="text-sm font-black text-[#171916] dark:text-white">
                   {liveStatus.nextLecture.subject || liveStatus.nextLecture.subjectName}
                 </div>
-                <div className="flex items-center gap-3 text-xs text-[#555952] dark:text-neutral-400 font-mono">
+                <div className="flex items-center gap-3 text-xs text-[#333] dark:text-neutral-200 font-mono font-medium">
                   <span>{liveStatus.nextLecture.startTime} – {liveStatus.nextLecture.endTime}</span>
                   {(liveStatus.nextLecture.classroom || liveStatus.nextLecture.room) && (
-                    <span>· Room: {liveStatus.nextLecture.classroom || liveStatus.nextLecture.room}</span>
+                    <span className="text-[#171916] dark:text-white font-semibold">· Room: {liveStatus.nextLecture.classroom || liveStatus.nextLecture.room}</span>
                   )}
                 </div>
               </div>
@@ -602,9 +602,9 @@ export const DashboardPage: React.FC = () => {
             <div className="p-3.5 rounded-2xl bg-amber-50/90 dark:bg-amber-950/40 border-2 border-amber-300 dark:border-amber-800/80 flex items-center justify-between text-xs shadow-2xs">
               <div className="flex items-center gap-2.5 text-amber-950 dark:text-amber-200">
                 <Coffee className="w-4 h-4 text-amber-600 shrink-0" />
-                <span className="font-extrabold uppercase tracking-wide">LUNCH BREAK | 12:30 PM–1:30 PM</span>
+                <span className="font-black uppercase tracking-wide">LUNCH BREAK | 12:30 PM–1:30 PM</span>
               </div>
-              <span className="text-[10px] text-amber-800 dark:text-amber-400 font-mono font-bold bg-amber-100 dark:bg-amber-900/60 px-2 py-0.5 rounded-md">
+              <span className="text-[10px] text-amber-900 dark:text-amber-100 font-mono font-extrabold bg-amber-200/80 dark:bg-amber-900/80 px-2 py-0.5 rounded-md">
                 Permanent Interval
               </span>
             </div>
@@ -613,15 +613,15 @@ export const DashboardPage: React.FC = () => {
             {todayLectures.length === 0 ? (
               <div className="p-8 text-center space-y-3 border border-dashed border-[#E5E3DC] dark:border-neutral-800 rounded-2xl">
                 <Calendar className="w-8 h-8 text-[#737871] mx-auto opacity-50" />
-                <div className="text-sm font-extrabold text-[#171916] dark:text-neutral-100">
+                <div className="text-sm font-black text-[#171916] dark:text-white">
                   No lectures scheduled today
                 </div>
-                <p className="text-xs text-[#737871] max-w-sm mx-auto">
+                <p className="text-xs text-[#555] dark:text-neutral-300 max-w-sm mx-auto font-medium">
                   You have a free schedule today. Add a new lecture or study block to your timetable.
                 </p>
                 <Link
                   to="/timetable"
-                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#F97316] hover:bg-[#EA580C] text-white text-xs font-bold rounded-xl transition-colors shadow-2xs"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 bg-[#F97316] hover:bg-[#EA580C] text-white text-xs font-extrabold rounded-xl transition-colors shadow-2xs"
                 >
                   <Plus className="w-3.5 h-3.5" />
                   <span>Customize Timetable</span>
@@ -629,8 +629,8 @@ export const DashboardPage: React.FC = () => {
               </div>
             ) : (
               <div className="space-y-2.5">
-                <div className="flex items-center justify-between text-xs font-bold text-[#737871] pt-1">
-                  <span>Today&rsquo;s Complete Schedule</span>
+                <div className="flex items-center justify-between text-xs font-bold text-[#737871] dark:text-neutral-300 pt-1">
+                  <span className="text-[#171916] dark:text-white font-extrabold">Today&rsquo;s Complete Schedule</span>
                   <span className="font-mono">{liveStatus.remainingLecturesCount} remaining today</span>
                 </div>
 
@@ -672,28 +672,28 @@ export const DashboardPage: React.FC = () => {
 
                           <div>
                             <div className="flex items-center gap-2">
-                              <span className="text-xs font-bold text-[#171916] dark:text-neutral-100">
+                              <span className="text-xs font-black text-[#171916] dark:text-white">
                                 {lecture.subject || lecture.subjectName}
                               </span>
                               {lecture.subjectCode && (
-                                <span className="text-[10px] font-mono text-[#737871]">
+                                <span className="text-[10px] font-mono font-bold text-[#F97316]">
                                   ({lecture.subjectCode})
                                 </span>
                               )}
                               {isCurrent && (
-                                <span className="text-[10px] font-bold text-[#F97316] uppercase tracking-wide">
+                                <span className="text-[10px] font-extrabold text-[#F97316] uppercase tracking-wide">
                                   In Progress
                                 </span>
                               )}
                             </div>
 
-                            <div className="text-xs text-[#555952] dark:text-neutral-400 mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5">
-                              <span className="flex items-center gap-1 font-mono tabular-nums">
-                                <Clock className="w-3 h-3 text-[#737871]" />
+                            <div className="text-xs text-[#333] dark:text-neutral-200 mt-0.5 flex flex-wrap items-center gap-x-3 gap-y-0.5 font-medium">
+                              <span className="flex items-center gap-1 font-mono font-bold tabular-nums text-[#171916] dark:text-white">
+                                <Clock className="w-3 h-3 text-[#F97316]" />
                                 {lecture.startTime} – {lecture.endTime}
                               </span>
                               {(lecture.classroom || lecture.room) && (
-                                <span className="flex items-center gap-1">
+                                <span className="flex items-center gap-1 font-semibold text-[#171916] dark:text-white">
                                   <MapPin className="w-3 h-3 text-[#F97316]" />
                                   {lecture.classroom || lecture.room}
                                 </span>

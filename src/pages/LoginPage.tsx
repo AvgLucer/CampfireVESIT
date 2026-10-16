@@ -257,7 +257,9 @@ export const LoginPage: React.FC = () => {
             {/* Header / Brand */}
             <div className="p-6 sm:p-8 border-b border-[#E5E3DC] dark:border-neutral-800 bg-[#FAF9F5]/80 dark:bg-neutral-900/60">
               <div className="flex items-center justify-between gap-4">
-                <CampfireLogo size="lg" showTagline />
+                <div className="p-3 rounded-2xl bg-[#171916] text-white shadow-xs border border-neutral-800 inline-block">
+                  <CampfireLogo size="lg" showTagline />
+                </div>
                 <span className="px-3 py-1 rounded-full text-[10px] font-extrabold uppercase tracking-wider bg-orange-100 text-[#F97316] dark:bg-orange-950 dark:text-orange-300 border border-orange-200 dark:border-orange-800 flex items-center gap-1.5">
                   <ShieldCheck className="w-3.5 h-3.5" />
                   <span>VESIT Portal</span>

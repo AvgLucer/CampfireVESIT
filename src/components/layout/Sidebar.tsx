@@ -47,20 +47,20 @@ export const Sidebar: React.FC = () => {
   return (
     <aside className="hidden md:flex flex-col w-64 bg-white dark:bg-neutral-900 border-r border-[#E5E3DC] dark:border-neutral-800 h-screen sticky top-0 shrink-0 select-none">
       {/* Brand Header */}
-      <div className="p-5 border-b border-[#E5E3DC] dark:border-neutral-800">
-        <NavLink to="/dashboard" className="block">
+      <div className="p-4 border-b border-[#E5E3DC] dark:border-neutral-800">
+        <NavLink to="/dashboard" className="block p-3 rounded-2xl bg-[#171916] text-white shadow-xs border border-neutral-800 hover:border-[#F97316] transition-all">
           <CampfireLogo size="md" showTagline />
         </NavLink>
 
         {/* Campus & Semester Selector */}
-        <div className="mt-4 px-3 py-2 rounded-xl bg-[#FAF9F5] dark:bg-neutral-800 border border-[#E5E3DC] dark:border-neutral-700">
-          <div className="text-[10px] font-semibold tracking-wider uppercase text-[#737871]">
+        <div className="mt-3 px-3 py-2 rounded-xl bg-[#FAF9F5] dark:bg-neutral-800 border border-[#E5E3DC] dark:border-neutral-700">
+          <div className="text-[10px] font-bold tracking-wider uppercase text-[#737871] dark:text-neutral-400">
             Active Campus
           </div>
-          <div className="text-xs font-bold text-[#171916] dark:text-neutral-100 truncate">
+          <div className="text-xs font-extrabold text-[#171916] dark:text-white truncate">
             VESIT Chembur, Mumbai
           </div>
-          <div className="text-[11px] text-[#555952] dark:text-neutral-400 flex items-center justify-between mt-0.5">
+          <div className="text-[11px] text-[#555952] dark:text-neutral-300 flex items-center justify-between mt-0.5 font-medium">
             <span>{isAdmin ? 'Academic Council' : `${user?.year?.split(' ')[0] || 'FE'} · ${user?.semester || 'Semester II'}`}</span>
             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
           </div>
