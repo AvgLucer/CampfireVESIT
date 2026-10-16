@@ -7,6 +7,7 @@ import { EmberToken } from '../common/EmberToken';
 import { BadgeArtwork } from '../badges/BadgeArtwork';
 import { UserBadgesRow } from '../badges/UserBadgesRow';
 import { WalletModal } from '../wallet/WalletModal';
+import { ThemeSelector } from '../common/ThemeSelector';
 import {
   Bell,
   User,
@@ -61,6 +62,7 @@ export const Navbar: React.FC = () => {
     { label: 'Badges', path: '/badges' },
     { label: 'Crates', path: '/crates' },
     { label: 'Campus Guide', path: '/campus' },
+    { label: 'Faculty Info', path: '/faculty' },
   ];
 
   const isAdmin = user?.role === 'admin';
@@ -104,6 +106,9 @@ export const Navbar: React.FC = () => {
           >
             <EmberToken amount={economy.emberBalance} size="sm" />
           </button>
+
+          {/* Theme Selector (Classic, Tron Ares, Smooth White & Blue) */}
+          <ThemeSelector />
 
           {/* Quick Profile Switcher Button */}
           <button

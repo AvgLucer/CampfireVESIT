@@ -3,6 +3,7 @@
 @layer base {
   body {
     font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    transition: background-color 0.2s ease, color 0.2s ease;
   }
 
   code, kbd, samp, pre {
@@ -40,10 +41,305 @@
   }
 }
 
+@keyframes tronLaserPulse {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(255, 0, 60, 0.35);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(255, 0, 60, 0.75);
+  }
+}
+
 .badge-unreal-glow {
   animation: unrealShimmer 3s infinite ease-in-out;
 }
 
 .badge-mythical-glow {
   animation: cosmicPulse 4s infinite ease-in-out;
+}
+
+/* =========================================================================
+   UNIVERSAL OPPOSITE CONTRAST FOR ALL FORM FIELDS (INPUTS, SELECTS, TEXTAREAS)
+   ========================================================================= */
+
+/* Default / Classic Theme: Light surface -> Ultra-Dark high contrast text */
+input,
+select,
+textarea {
+  color: #05070A !important;
+  font-weight: 600 !important;
+  caret-color: #F97316 !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: #4B5563 !important;
+  opacity: 1 !important;
+  font-weight: 500 !important;
+}
+
+label {
+  color: #0A0D14 !important;
+  font-weight: 700 !important;
+}
+
+/* =========================================================================
+   THEME 2: TRON: ARES (DARK RED & BLACK CYBER AESTHETIC)
+   ========================================================================= */
+html[data-theme="tron"] {
+  color-scheme: dark;
+}
+
+html[data-theme="tron"] body {
+  background-color: #070507 !important;
+  color: #FFFFFF !important;
+  background-image: 
+    radial-gradient(ellipse 90% 45% at 50% -10%, rgba(255, 0, 60, 0.14), transparent 70%),
+    radial-gradient(circle 800px at 100% 100%, rgba(220, 38, 38, 0.06), transparent),
+    linear-gradient(to bottom, #070507, #0b0609 50%, #050305 100%) !important;
+}
+
+html[data-theme="tron"] .min-h-screen {
+  background-color: #070507 !important;
+}
+
+/* Background containers */
+html[data-theme="tron"] .bg-\[\#F7F6F2\] {
+  background-color: #070507 !important;
+}
+
+html[data-theme="tron"] .bg-\[\#FAF9F5\] {
+  background-color: #11070d !important;
+}
+
+html[data-theme="tron"] .bg-white {
+  background-color: #0d060a !important;
+}
+
+/* Borders */
+html[data-theme="tron"] .border-\[\#E5E3DC\],
+html[data-theme="tron"] .border-\[\#D7D4CB\],
+html[data-theme="tron"] .border-neutral-200 {
+  border-color: rgba(239, 68, 68, 0.25) !important;
+}
+
+/* Typography */
+html[data-theme="tron"] .text-\[\#171916\],
+html[data-theme="tron"] .text-\[\#20231F\],
+html[data-theme="tron"] .text-\[\#3B4036\] {
+  color: #FFFFFF !important;
+}
+
+html[data-theme="tron"] .text-\[\#555952\],
+html[data-theme="tron"] .text-\[\#737871\] {
+  color: #CCA1AA !important;
+}
+
+/* Tron Ares Neon Laser Red Accents */
+html[data-theme="tron"] .text-\[\#F97316\] {
+  color: #FF003C !important;
+}
+
+html[data-theme="tron"] .bg-\[\#F97316\] {
+  background-color: #FF003C !important;
+  box-shadow: 0 0 14px rgba(255, 0, 60, 0.45) !important;
+}
+
+html[data-theme="tron"] .hover\:bg-\[\#EA580C\]:hover {
+  background-color: #E00034 !important;
+}
+
+html[data-theme="tron"] .border-\[\#F97316\] {
+  border-color: #FF003C !important;
+}
+
+html[data-theme="tron"] .bg-orange-100,
+html[data-theme="tron"] .bg-\[\#FFF8F5\] {
+  background-color: rgba(255, 0, 60, 0.12) !important;
+}
+
+html[data-theme="tron"] .border-orange-200,
+html[data-theme="tron"] .border-orange-300 {
+  border-color: rgba(255, 0, 60, 0.35) !important;
+}
+
+html[data-theme="tron"] .ring-\[\#F97316\]\/20 {
+  --tw-ring-color: rgba(255, 0, 60, 0.35) !important;
+}
+
+/* Navigation & Shell Bars in Tron */
+html[data-theme="tron"] header,
+html[data-theme="tron"] aside,
+html[data-theme="tron"] nav {
+  background-color: rgba(13, 6, 10, 0.94) !important;
+  border-color: rgba(255, 0, 60, 0.24) !important;
+}
+
+/* HIGH OPPOSITE CONTRAST FOR ALL TRON FORM FIELDS:
+   Dark surface (#170912) -> Ultra Crisp Pure White text (#FFFFFF) & Soft Glowing Pink-White placeholder */
+html[data-theme="tron"] input,
+html[data-theme="tron"] select,
+html[data-theme="tron"] textarea {
+  background-color: #170912 !important;
+  border-color: rgba(255, 0, 60, 0.45) !important;
+  color: #FFFFFF !important;
+  font-weight: 700 !important;
+  caret-color: #FF003C !important;
+}
+
+html[data-theme="tron"] input::placeholder,
+html[data-theme="tron"] textarea::placeholder {
+  color: #FFAEB9 !important;
+  opacity: 1 !important;
+  font-weight: 500 !important;
+}
+
+html[data-theme="tron"] select option {
+  background-color: #14070f !important;
+  color: #FFFFFF !important;
+}
+
+html[data-theme="tron"] label {
+  color: #FFFFFF !important;
+  font-weight: 700 !important;
+  text-shadow: 0 0 6px rgba(255, 0, 60, 0.3) !important;
+}
+
+html[data-theme="tron"] input:focus,
+html[data-theme="tron"] select:focus,
+html[data-theme="tron"] textarea:focus {
+  background-color: #1d0c18 !important;
+  border-color: #FF003C !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 0 0 3px rgba(255, 0, 60, 0.25), 0 0 14px rgba(255, 0, 60, 0.35) !important;
+}
+
+/* =========================================================================
+   THEME 3: SMOOTH WHITE + BLUE (AZURE ARCTIC)
+   ========================================================================= */
+html[data-theme="azure"] {
+  color-scheme: light;
+}
+
+html[data-theme="azure"] body {
+  background-color: #F0F6FF !important;
+  color: #0F172A !important;
+  background-image: 
+    radial-gradient(ellipse 90% 45% at 50% -10%, rgba(37, 99, 235, 0.08), transparent 70%),
+    radial-gradient(circle 800px at 100% 100%, rgba(59, 130, 246, 0.05), transparent),
+    linear-gradient(to bottom, #F0F6FF, #F4F8FD 50%, #EEF5FF 100%) !important;
+}
+
+html[data-theme="azure"] .min-h-screen {
+  background-color: #F0F6FF !important;
+}
+
+/* Background containers */
+html[data-theme="azure"] .bg-\[\#F7F6F2\] {
+  background-color: #F0F6FF !important;
+}
+
+html[data-theme="azure"] .bg-\[\#FAF9F5\] {
+  background-color: #F8FAFC !important;
+}
+
+html[data-theme="azure"] .bg-white {
+  background-color: #FFFFFF !important;
+}
+
+/* Borders */
+html[data-theme="azure"] .border-\[\#E5E3DC\],
+html[data-theme="azure"] .border-\[\#D7D4CB\],
+html[data-theme="azure"] .border-neutral-200 {
+  border-color: #DBEAFE !important;
+}
+
+/* Typography */
+html[data-theme="azure"] .text-\[\#171916\],
+html[data-theme="azure"] .text-\[\#20231F\],
+html[data-theme="azure"] .text-\[\#3B4036\] {
+  color: #0A0F1D !important;
+}
+
+html[data-theme="azure"] .text-\[\#555952\],
+html[data-theme="azure"] .text-\[\#737871\] {
+  color: #334155 !important;
+}
+
+/* Royal Azure Blue Accents */
+html[data-theme="azure"] .text-\[\#F97316\] {
+  color: #2563EB !important;
+}
+
+html[data-theme="azure"] .bg-\[\#F97316\] {
+  background-color: #2563EB !important;
+  box-shadow: 0 2px 10px rgba(37, 99, 235, 0.25) !important;
+}
+
+html[data-theme="azure"] .hover\:bg-\[\#EA580C\]:hover {
+  background-color: #1D4ED8 !important;
+}
+
+html[data-theme="azure"] .border-\[\#F97316\] {
+  border-color: #2563EB !important;
+}
+
+html[data-theme="azure"] .bg-orange-100,
+html[data-theme="azure"] .bg-\[\#FFF8F5\] {
+  background-color: #EFF6FF !important;
+}
+
+html[data-theme="azure"] .border-orange-200,
+html[data-theme="azure"] .border-orange-300 {
+  border-color: #BFDBFE !important;
+}
+
+html[data-theme="azure"] .ring-\[\#F97316\]\/20 {
+  --tw-ring-color: rgba(37, 99, 235, 0.25) !important;
+}
+
+/* Navigation & Shell Bars in Azure */
+html[data-theme="azure"] header,
+html[data-theme="azure"] aside,
+html[data-theme="azure"] nav {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  border-color: #DBEAFE !important;
+}
+
+/* HIGH OPPOSITE CONTRAST FOR ALL AZURE FORM FIELDS:
+   White surface (#FFFFFF) -> Deepest Midnight Navy Black text (#0A0F1D) & Solid Slate placeholder */
+html[data-theme="azure"] input,
+html[data-theme="azure"] select,
+html[data-theme="azure"] textarea {
+  background-color: #FFFFFF !important;
+  border-color: #93C5FD !important;
+  color: #0A0F1D !important;
+  font-weight: 700 !important;
+  caret-color: #2563EB !important;
+}
+
+html[data-theme="azure"] input::placeholder,
+html[data-theme="azure"] textarea::placeholder {
+  color: #475569 !important;
+  opacity: 1 !important;
+  font-weight: 500 !important;
+}
+
+html[data-theme="azure"] select option {
+  background-color: #FFFFFF !important;
+  color: #0A0F1D !important;
+}
+
+html[data-theme="azure"] label {
+  color: #0A0F1D !important;
+  font-weight: 700 !important;
+}
+
+html[data-theme="azure"] input:focus,
+html[data-theme="azure"] select:focus,
+html[data-theme="azure"] textarea:focus {
+  background-color: #FFFFFF !important;
+  border-color: #2563EB !important;
+  color: #0A0F1D !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25), 0 0 12px rgba(37, 99, 235, 0.18) !important;
 }

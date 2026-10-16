@@ -9,6 +9,7 @@ import { COLLECTOR_FRAMES } from '../data/crateDefinitions';
 import { RARITY_DETAILS } from '../data/badgeCatalogue';
 import { BadgeRarity } from '../types/ember';
 import { MiniMothAdapter } from '../services/authAdapter';
+import { useTheme } from '../context/ThemeContext';
 import {
   User,
   ShieldCheck,
@@ -26,6 +27,10 @@ import {
   Star,
   Check,
   X,
+  Palette,
+  Zap,
+  Droplets,
+  Flame,
 } from 'lucide-react';
 
 export const SettingsPage: React.FC = () => {
@@ -54,6 +59,8 @@ export const SettingsPage: React.FC = () => {
     unequipBadge,
     toggleFavoriteBadge,
   } = useEmberEconomy();
+
+  const { theme, setTheme, allThemes } = useTheme();
 
   const [name, setName] = useState(user?.name || 'Aarav Sharma');
   const [statusMessage, setStatusMessage] = useState(user?.statusMessage || '');
@@ -214,7 +221,7 @@ export const SettingsPage: React.FC = () => {
         <form onSubmit={handleSaveProfile} className="space-y-4">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-[#3B4036] mb-1">
+              <label className="block text-xs font-bold text-[#171916] dark:text-neutral-100 mb-1">
                 Student Name (Changeable)
               </label>
               <input
@@ -222,15 +229,15 @@ export const SettingsPage: React.FC = () => {
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full px-3 py-2 text-xs rounded-lg border border-[#D7D4CB] bg-white text-[#20231F] focus:outline-hidden focus:border-[#F97316]"
+                className="w-full px-3 py-2 text-xs rounded-lg border border-[#D7D4CB] dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[#171916] dark:text-neutral-100 font-semibold focus:outline-hidden focus:border-[#F97316]"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#3B4036] mb-1">
+              <label className="block text-xs font-bold text-[#171916] dark:text-neutral-100 mb-1">
                 Assigned Username (Locked to Institutional Email)
               </label>
-              <div className="w-full px-3 py-2 text-xs rounded-lg border border-[#E5E3DC] bg-[#FAF9F5] font-mono text-[#F97316] font-bold">
+              <div className="w-full px-3 py-2 text-xs rounded-lg border border-[#E5E3DC] dark:border-neutral-700 bg-[#FAF9F5] dark:bg-neutral-800 font-mono text-[#F97316] font-bold">
                 {user?.username || '@student'}
               </div>
             </div>
@@ -238,12 +245,12 @@ export const SettingsPage: React.FC = () => {
             {/* Student Status (Max 60 letters message) */}
             <div className="sm:col-span-2">
               <div className="flex items-center justify-between mb-1">
-                <label className="text-xs font-semibold text-[#3B4036]">
+                <label className="text-xs font-bold text-[#171916] dark:text-neutral-100">
                   Student Status (Max 60 letters message)
                 </label>
                 <span
                   className={`text-[11px] font-mono font-semibold ${
-                    statusMessage.length >= 60 ? 'text-rose-600' : 'text-[#737871]'
+                    statusMessage.length >= 60 ? 'text-rose-600' : 'text-[#737871] dark:text-neutral-400'
                   }`}
                 >
                   {statusMessage.length} / 60 characters
@@ -255,7 +262,7 @@ export const SettingsPage: React.FC = () => {
                 value={statusMessage}
                 onChange={(e) => setStatusMessage(e.target.value.slice(0, 60))}
                 placeholder="What are you currently preparing or doing on campus?"
-                className="w-full px-3 py-2 text-xs rounded-lg border border-[#D7D4CB] bg-white text-[#20231F] focus:outline-hidden focus:border-[#F97316]"
+                className="w-full px-3 py-2 text-xs rounded-lg border border-[#D7D4CB] dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[#171916] dark:text-neutral-100 font-semibold focus:outline-hidden focus:border-[#F97316]"
               />
               <div className="flex flex-wrap gap-1.5 mt-1.5">
                 {statusPresets.map((preset, idx) => (
@@ -263,7 +270,7 @@ export const SettingsPage: React.FC = () => {
                     key={idx}
                     type="button"
                     onClick={() => setStatusMessage(preset.slice(0, 60))}
-                    className="text-[10px] px-2 py-0.5 rounded bg-[#FAF9F5] border border-[#E5E3DC] hover:border-[#F97316] text-[#555952] cursor-pointer"
+                    className="text-[10px] px-2 py-0.5 rounded bg-[#FAF9F5] dark:bg-neutral-800 border border-[#E5E3DC] dark:border-neutral-700 hover:border-[#F97316] text-[#555952] dark:text-neutral-300 font-medium cursor-pointer"
                   >
                     {preset}
                   </button>
@@ -272,42 +279,42 @@ export const SettingsPage: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#3B4036] mb-1">Academic Department</label>
+              <label className="block text-xs font-bold text-[#171916] dark:text-neutral-100 mb-1">Academic Department</label>
               <input
                 type="text"
                 value={department}
                 onChange={(e) => setDepartment(e.target.value)}
-                className="w-full px-3 py-2 text-xs rounded-lg border border-[#D7D4CB]"
+                className="w-full px-3 py-2 text-xs rounded-lg border border-[#D7D4CB] dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[#171916] dark:text-neutral-100 font-semibold focus:outline-hidden focus:border-[#F97316]"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#3B4036] mb-1">Division</label>
+              <label className="block text-xs font-bold text-[#171916] dark:text-neutral-100 mb-1">Division</label>
               <input
                 type="text"
                 value={division}
                 onChange={(e) => setDivision(e.target.value)}
-                className="w-full px-3 py-2 text-xs rounded-lg border border-[#D7D4CB]"
+                className="w-full px-3 py-2 text-xs rounded-lg border border-[#D7D4CB] dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[#171916] dark:text-neutral-100 font-semibold focus:outline-hidden focus:border-[#F97316]"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#3B4036] mb-1">Roll Number</label>
+              <label className="block text-xs font-bold text-[#171916] dark:text-neutral-100 mb-1">Roll Number</label>
               <input
                 type="text"
                 value={rollNumber}
                 onChange={(e) => setRollNumber(e.target.value)}
-                className="w-full px-3 py-2 text-xs rounded-lg border border-[#D7D4CB]"
+                className="w-full px-3 py-2 text-xs rounded-lg border border-[#D7D4CB] dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[#171916] dark:text-neutral-100 font-semibold focus:outline-hidden focus:border-[#F97316]"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-[#3B4036] mb-1">Semester</label>
+              <label className="block text-xs font-bold text-[#171916] dark:text-neutral-100 mb-1">Semester</label>
               <input
                 type="text"
                 value={semester}
                 onChange={(e) => setSemester(e.target.value)}
-                className="w-full px-3 py-2 text-xs rounded-lg border border-[#D7D4CB]"
+                className="w-full px-3 py-2 text-xs rounded-lg border border-[#D7D4CB] dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[#171916] dark:text-neutral-100 font-semibold focus:outline-hidden focus:border-[#F97316]"
               />
             </div>
           </div>
@@ -321,6 +328,90 @@ export const SettingsPage: React.FC = () => {
             </button>
           </div>
         </form>
+      </div>
+
+      {/* SECTION: 3 BACKGROUND THEMES (Classic, Tron Ares, Smooth White & Blue) */}
+      <div className="p-6 rounded-2xl bg-white border border-[#E5E3DC] shadow-xs space-y-5">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#E5E3DC]">
+          <div>
+            <div className="flex items-center gap-2 text-xs font-bold text-[#171916]">
+              <Palette className="w-4 h-4 text-[#F97316]" />
+              <span>Theme & Visual Appearance</span>
+            </div>
+            <p className="text-xs text-[#555952] mt-0.5">
+              Customize CampusConnect's color scheme with 3 distinct visual atmospheres.
+            </p>
+          </div>
+          <span className="text-xs font-mono font-bold px-2.5 py-1 rounded-xl bg-orange-100 text-[#F97316]">
+            Active: {allThemes.find((t) => t.id === theme)?.name}
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {allThemes.map((t) => {
+            const isSelected = theme === t.id;
+            return (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => setTheme(t.id)}
+                className={`relative p-5 rounded-2xl text-left border transition-all cursor-pointer flex flex-col justify-between space-y-4 ${
+                  isSelected
+                    ? 'border-[#F97316] ring-2 ring-[#F97316]/30 shadow-md'
+                    : 'border-[#E5E3DC] hover:border-[#D7D4CB] hover:bg-[#FAF9F5]'
+                }`}
+                style={{ backgroundColor: t.previewColors.bg }}
+              >
+                {/* Visual Preview Header */}
+                <div className="flex items-start justify-between gap-2">
+                  <div className="w-9 h-9 rounded-xl flex items-center justify-center font-bold text-sm shadow-xs"
+                    style={{ backgroundColor: t.previewColors.card, border: `1px solid ${t.previewColors.border}` }}
+                  >
+                    <span>{t.icon}</span>
+                  </div>
+
+                  {isSelected ? (
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#F97316] text-white flex items-center gap-1 shadow-xs">
+                      <Check className="w-3 h-3 stroke-[3]" />
+                      <span>Active</span>
+                    </span>
+                  ) : (
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-medium border"
+                      style={{ color: t.previewColors.text, borderColor: t.previewColors.border, backgroundColor: t.previewColors.card }}
+                    >
+                      Select
+                    </span>
+                  )}
+                </div>
+
+                {/* Color swatches strip */}
+                <div className="flex items-center gap-1.5 p-2 rounded-xl"
+                  style={{ backgroundColor: t.previewColors.card, border: `1px solid ${t.previewColors.border}` }}
+                >
+                  <div className="w-5 h-5 rounded-md border" style={{ backgroundColor: t.previewColors.bg, borderColor: t.previewColors.border }} title="Background" />
+                  <div className="w-5 h-5 rounded-md border" style={{ backgroundColor: t.previewColors.card, borderColor: t.previewColors.border }} title="Card" />
+                  <div className="w-5 h-5 rounded-md shadow-2xs" style={{ backgroundColor: t.previewColors.accent }} title="Accent" />
+                  <div className="w-5 h-5 rounded-md flex items-center justify-center text-[9px] font-bold" style={{ backgroundColor: t.previewColors.text, color: t.previewColors.card }} title="Text">
+                    Aa
+                  </div>
+                </div>
+
+                {/* Theme Name & Tagline */}
+                <div>
+                  <div className="text-sm font-extrabold tracking-tight" style={{ color: t.previewColors.text }}>
+                    {t.name}
+                  </div>
+                  <div className="text-[11px] font-semibold mt-0.5" style={{ color: t.previewColors.accent }}>
+                    {t.subtitle}
+                  </div>
+                  <p className="text-[10px] mt-1 line-clamp-2 leading-relaxed opacity-80" style={{ color: t.previewColors.text }}>
+                    {t.tagline}
+                  </p>
+                </div>
+              </button>
+            );
+          })}
+        </div>
       </div>
 
       {/* SECTION: 5 PROFILE BADGE SLOTS (Min & Max 5 Visible on Profile) */}

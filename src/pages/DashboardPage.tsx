@@ -729,6 +729,19 @@ export const DashboardPage: React.FC = () => {
               <div className="text-[10px] text-[#737871]">Live campus bulletin</div>
             </div>
           </Link>
+
+          <Link
+            to="/faculty"
+            className="p-3.5 rounded-xl bg-white border border-[#E5E3DC] hover:border-[#8B5CF6] transition-all flex flex-col gap-2 group shadow-2xs"
+          >
+            <div className="w-8 h-8 rounded-lg bg-purple-100 text-[#8B5CF6] flex items-center justify-center group-hover:scale-105 transition-transform">
+              <UserCheck className="w-4 h-4" />
+            </div>
+            <div>
+              <div className="text-xs font-bold text-[#171916]">Faculty Info</div>
+              <div className="text-[10px] text-[#737871]">Contacts & availability</div>
+            </div>
+          </Link>
         </div>
       </div>
 

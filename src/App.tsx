@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AppProvider, useApp } from './context/AppContext';
 import { EmberEconomyProvider } from './context/EmberEconomyContext';
+import { ThemeProvider } from './context/ThemeContext';
 import { AppLayout } from './components/layout/AppLayout';
 import { LoginPage } from './pages/LoginPage';
 import { LandingPage } from './pages/LandingPage';
@@ -16,6 +17,7 @@ import { BadgesPage } from './pages/BadgesPage';
 import { CratesPage } from './pages/CratesPage';
 import { WalletPage } from './pages/WalletPage';
 import { DailyUpdatesPage } from './pages/DailyUpdatesPage';
+import { FacultyPage } from './pages/FacultyPage';
 
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user } = useApp();
@@ -32,7 +34,8 @@ export default function App() {
     <BrowserRouter>
       <AppProvider>
         <EmberEconomyProvider>
-          <AppLayout>
+          <ThemeProvider>
+            <AppLayout>
             <Routes>
               <Route path="/login" element={<LoginPage />} />
               <Route
@@ -139,10 +142,19 @@ export default function App() {
                   </ProtectedRoute>
                 }
               />
+              <Route
+                path="/faculty"
+                element={
+                  <ProtectedRoute>
+                    <FacultyPage />
+                  </ProtectedRoute>
+                }
+              />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </AppLayout>
-        </EmberEconomyProvider>
+        </ThemeProvider>
+      </EmberEconomyProvider>
       </AppProvider>
     </BrowserRouter>
   );

@@ -24,6 +24,7 @@ import {
   Award,
   Radio,
   LogOut,
+  UserCheck,
 } from 'lucide-react';
 
 export const Sidebar: React.FC = () => {
@@ -37,6 +38,7 @@ export const Sidebar: React.FC = () => {
     { label: 'Peer Learning', path: '/learning', icon: Users, badgeCount: '1-on-1' },
     { label: 'Badge Collection', path: '/badges', icon: Layers, badgeCount: `${economy.ownedBadgeIds.length}/75` },
     { label: 'Crate Shop', path: '/crates', icon: Box },
+    { label: 'Faculty Info', path: '/faculty', icon: UserCheck },
     { label: 'Academics', path: '/academics', icon: GraduationCap },
     { label: 'Rides & Carpools', path: '/rides', icon: Car },
     { label: 'Campus Guide', path: '/campus', icon: MapPin },
