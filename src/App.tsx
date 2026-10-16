@@ -14,7 +14,6 @@ import { EventsPage } from './pages/EventsPage';
 import { PeerLearningPage } from './pages/PeerLearningPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { BadgesPage } from './pages/BadgesPage';
-import { CratesPage } from './pages/CratesPage';
 import { WalletPage } from './pages/WalletPage';
 import { DailyUpdatesPage } from './pages/DailyUpdatesPage';
 import { FacultyPage } from './pages/FacultyPage';
@@ -128,11 +127,7 @@ export default function App() {
               />
               <Route
                 path="/crates"
-                element={
-                  <ProtectedRoute>
-                    <CratesPage />
-                  </ProtectedRoute>
-                }
+                element={<Navigate to="/badges?tab=crates" replace />}
               />
               <Route
                 path="/wallet"

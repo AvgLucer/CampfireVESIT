@@ -216,7 +216,7 @@ export const WalletModal: React.FC<WalletModalProps> = ({
         {/* Footer */}
         <div className="p-4 border-t border-[#E5E3DC] dark:border-neutral-800 bg-[#FAF9F5] dark:bg-neutral-950 flex items-center justify-between text-xs">
           <Link
-            to="/crates"
+            to="/badges?tab=crates"
             onClick={onClose}
             className="text-xs font-bold text-[#F97316] hover:underline flex items-center gap-1"
           >

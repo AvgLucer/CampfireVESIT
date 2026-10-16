@@ -179,7 +179,7 @@ export const BadgeDetailModal: React.FC<BadgeDetailModalProps> = ({
               </>
             ) : (
               <Link
-                to="/crates"
+                to="/badges?tab=crates"
                 onClick={onClose}
                 className="w-full py-2.5 px-4 rounded-xl text-xs font-bold bg-[#F97316] hover:bg-[#EA580C] text-white flex items-center justify-center gap-2 shadow-xs transition-colors"
               >

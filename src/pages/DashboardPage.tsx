@@ -378,7 +378,7 @@ export const DashboardPage: React.FC = () => {
               </div>
               {isDailyCrateAvailable ? (
                 <Link
-                  to="/crates"
+                  to="/badges?tab=crates"
                   className="text-xs font-extrabold text-emerald-700 hover:underline flex items-center gap-1 mt-0.5"
                 >
                   <span>Ready to Open (Free!)</span>
@@ -419,7 +419,7 @@ export const DashboardPage: React.FC = () => {
                 </Link>
                 <span>·</span>
                 <Link
-                  to="/crates"
+                  to="/badges?tab=crates"
                   className="text-[11px] font-bold text-[#555952] hover:text-[#171916]"
                 >
                   Crate Shop
@@ -446,7 +446,7 @@ export const DashboardPage: React.FC = () => {
             </div>
 
             <Link
-              to="/crates"
+              to="/badges?tab=crates"
               className="text-[11px] font-bold text-[#F97316] hover:underline flex items-center gap-1"
             >
               <span>Open More Crates</span>
@@ -693,7 +693,7 @@ export const DashboardPage: React.FC = () => {
           </Link>
 
           <Link
-            to="/crates"
+            to="/badges?tab=crates"
             className="p-3.5 rounded-xl bg-white border border-[#E5E3DC] hover:border-emerald-500 transition-all flex flex-col gap-2 group shadow-2xs"
           >
             <div className="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center group-hover:scale-105 transition-transform">

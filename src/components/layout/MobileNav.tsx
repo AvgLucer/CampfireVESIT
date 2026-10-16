@@ -6,8 +6,7 @@ export const MobileNav: React.FC = () => {
   const links = [
     { label: 'Home', path: '/dashboard', icon: LayoutDashboard },
     { label: 'Learn', path: '/learning', icon: Users },
-    { label: 'Badges', path: '/badges', icon: Layers },
-    { label: 'Crates', path: '/crates', icon: Box },
+    { label: 'Badges & Crates', path: '/badges', icon: Layers },
     { label: 'Rides', path: '/rides', icon: Car },
     { label: 'Academics', path: '/academics', icon: GraduationCap },
   ];

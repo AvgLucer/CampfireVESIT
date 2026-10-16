@@ -436,7 +436,7 @@ export const SettingsPage: React.FC = () => {
               <span>Badge Catalogue</span>
             </Link>
             <Link
-              to="/crates"
+              to="/badges?tab=crates"
               className="px-3.5 py-1.5 rounded-xl bg-[#F97316] hover:bg-[#EA580C] text-xs font-bold text-white transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs"
             >
               <Box className="w-3.5 h-3.5" />
@@ -571,7 +571,7 @@ export const SettingsPage: React.FC = () => {
           </div>
 
           <Link
-            to="/crates"
+            to="/badges?tab=crates"
             className="text-xs font-bold text-[#F97316] hover:underline flex items-center gap-1"
           >
             <span>Open Crates</span>

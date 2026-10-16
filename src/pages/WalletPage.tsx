@@ -65,7 +65,7 @@ export const WalletPage: React.FC = () => {
         </div>
 
         <Link
-          to="/crates"
+          to="/badges?tab=crates"
           className="px-4 py-2.5 bg-[#F97316] hover:bg-[#EA580C] text-white text-xs font-bold rounded-xl shadow-xs transition-colors flex items-center gap-2 self-start sm:self-auto cursor-pointer"
         >
           <Box className="w-4 h-4" />

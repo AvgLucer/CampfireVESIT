@@ -59,8 +59,7 @@ export const Navbar: React.FC = () => {
     { label: 'Peer Learning', path: '/learning' },
     { label: 'Academics', path: '/academics' },
     { label: 'Rides', path: '/rides' },
-    { label: 'Badges', path: '/badges' },
-    { label: 'Crates', path: '/crates' },
+    { label: 'Badges & Crates', path: '/badges' },
     { label: 'Campus Guide', path: '/campus' },
     { label: 'Faculty Info', path: '/faculty' },
   ];
@@ -272,16 +271,7 @@ export const Navbar: React.FC = () => {
                       className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-[#FAF9F5] dark:hover:bg-neutral-800 transition-colors text-[#171916] dark:text-neutral-200 font-semibold"
                     >
                       <Layers className="w-4 h-4 text-[#F97316]" />
-                      <span>Badge Collection ({economy.ownedBadgeIds.length}/75)</span>
-                    </Link>
-
-                    <Link
-                      to="/crates"
-                      onClick={() => setIsProfileOpen(false)}
-                      className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-[#FAF9F5] dark:hover:bg-neutral-800 transition-colors text-[#171916] dark:text-neutral-200 font-semibold"
-                    >
-                      <Box className="w-4 h-4 text-emerald-600" />
-                      <span>Crate Shop & Drops</span>
+                      <span>Badges & Crate Shop ({economy.ownedBadgeIds.length}/75)</span>
                     </Link>
 
                     <button
