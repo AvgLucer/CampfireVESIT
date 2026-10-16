@@ -184,6 +184,50 @@
         "createdAt": { "type": "string" }
       },
       "required": ["notificationId", "userId", "title", "message", "isRead"]
+    },
+    "PeerLearningRoom": {
+      "title": "PeerLearningRoom",
+      "description": "1-on-1 collaborative study room session with PIN code",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "pin": { "type": "string", "maxLength": 10 },
+        "title": { "type": "string", "maxLength": 150 },
+        "subjectCode": { "type": "string", "maxLength": 50 },
+        "hostId": { "type": "string", "maxLength": 128 },
+        "hostName": { "type": "string", "maxLength": 100 },
+        "hostUsername": { "type": "string", "maxLength": 60 },
+        "hostAvatarUrl": { "type": "string", "maxLength": 500 },
+        "joinerId": { "type": "string", "maxLength": 128 },
+        "joinerName": { "type": "string", "maxLength": 100 },
+        "joinerUsername": { "type": "string", "maxLength": 60 },
+        "joinerAvatarUrl": { "type": "string", "maxLength": 500 },
+        "status": { "type": "string", "enum": ["waiting", "active", "ended", "expired"] },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" },
+        "lastActivityAt": { "type": "string" },
+        "endedAt": { "type": "string" },
+        "clearedAt": { "type": "string" }
+      },
+      "required": ["id", "pin", "title", "subjectCode", "hostId", "hostName", "status"]
+    },
+    "WhiteboardStroke": {
+      "title": "WhiteboardStroke",
+      "description": "A single drawing stroke or shape on the collaborative whiteboard",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string", "maxLength": 128 },
+        "roomId": { "type": "string", "maxLength": 128 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "userName": { "type": "string", "maxLength": 100 },
+        "tool": { "type": "string", "enum": ["pen", "pencil", "marker", "eraser"] },
+        "color": { "type": "string", "maxLength": 30 },
+        "width": { "type": "number" },
+        "points": { "type": "array" },
+        "createdAt": { "type": "string" },
+        "isUndone": { "type": "boolean" }
+      },
+      "required": ["id", "roomId", "userId", "tool", "color", "width", "points", "createdAt"]
     }
   },
   "firestore": {
@@ -230,6 +274,14 @@
     "/notifications/{notificationId}": {
       "schema": "Notification",
       "description": "Student notification inbox"
+    },
+    "/peer_learning_rooms/{roomId}": {
+      "schema": "PeerLearningRoom",
+      "description": "1-on-1 collaborative study rooms with PIN"
+    },
+    "/peer_learning_rooms/{roomId}/strokes/{strokeId}": {
+      "schema": "WhiteboardStroke",
+      "description": "Real-time drawing strokes for the collaborative whiteboard"
     }
   }
 }

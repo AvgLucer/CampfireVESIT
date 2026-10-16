@@ -28,7 +28,7 @@ export interface PeerLearningRoom {
   hostId: string;
   hostName: string;
   hostUsername: string;
-  hostAvatarUrl?: string;
+  hostAvatarUrl?: string | null;
   joinerId?: string | null;
   joinerName?: string | null;
   joinerUsername?: string | null;

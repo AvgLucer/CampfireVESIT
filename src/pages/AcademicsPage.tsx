@@ -25,7 +25,60 @@ import {
   Tooltip,
   ResponsiveContainer,
   Legend,
+  CartesianGrid,
 } from 'recharts';
+
+interface CustomChartTooltipProps {
+  active?: boolean;
+  payload?: Array<{
+    name: string;
+    value: number;
+    payload: {
+      code: string;
+      name: string;
+      actualMaxMarks: number;
+      achievedMarks: number;
+      percentage: number;
+      grade: string;
+      credits: number;
+    };
+  }>;
+}
+
+const CustomChartTooltip: React.FC<CustomChartTooltipProps> = ({ active, payload }) => {
+  if (active && payload && payload.length) {
+    const data = payload[0].payload;
+    return (
+      <div className="bg-white dark:bg-neutral-900 p-3.5 rounded-2xl shadow-xl border border-[#E5E3DC] dark:border-neutral-700 text-xs space-y-2 min-w-[220px]">
+        <div className="border-b border-[#E5E3DC] dark:border-neutral-800 pb-1.5">
+          <div className="font-extrabold text-[#171916] dark:text-neutral-100">{data.name}</div>
+          <div className="font-mono text-[10px] text-[#F97316] font-bold">{data.code} · {data.credits} Credits</div>
+        </div>
+        <div className="space-y-1.5">
+          <div className="flex items-center justify-between text-[#555952] dark:text-neutral-300">
+            <span className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-xs bg-[#94A3B8]" />
+              <span className="font-medium">1. Max Marks:</span>
+            </span>
+            <span className="font-bold font-mono text-[#171916] dark:text-neutral-100">{data.actualMaxMarks}</span>
+          </div>
+          <div className="flex items-center justify-between text-[#555952] dark:text-neutral-300">
+            <span className="flex items-center gap-1.5">
+              <span className="w-2.5 h-2.5 rounded-xs bg-[#F97316]" />
+              <span className="font-bold text-[#F97316]">2. Achieved Marks:</span>
+            </span>
+            <span className="font-bold font-mono text-[#F97316]">{data.achievedMarks} ({data.percentage}%)</span>
+          </div>
+        </div>
+        <div className="flex items-center justify-between text-[11px] text-[#737871] pt-1.5 border-t border-[#E5E3DC] dark:border-neutral-800">
+          <span>Target Grade: <strong className="text-[#171916] dark:text-neutral-200">{data.grade}</strong></span>
+          <span>Difference: <strong>{data.actualMaxMarks - data.achievedMarks} m</strong></span>
+        </div>
+      </div>
+    );
+  }
+  return null;
+};
 
 export const AcademicsPage: React.FC = () => {
   const { subjects, addSubject, updateSubject, deleteSubject, gradingScale, showToast } = useApp();
@@ -269,65 +322,68 @@ export const AcademicsPage: React.FC = () => {
         </div>
       </div>
 
-      {/* DUAL-LAYER VISUAL GRAPH (Actual Marks vs Achieved Marks) */}
-      <div className="p-6 rounded-2xl bg-white border border-[#E5E3DC] shadow-xs space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+      {/* PERFORMANCE GRAPH (First Max Marks, then Achieved Marks - Well Aligned & Gapped) */}
+      <div className="p-6 rounded-2xl bg-white dark:bg-neutral-900 border border-[#E5E3DC] dark:border-neutral-800 shadow-xs space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
-            <h2 className="text-base font-bold text-[#171916]">
-              Subject Performance: Achieved Marks vs Actual Maximum Marks
+            <h2 className="text-base font-bold text-[#171916] dark:text-neutral-100">
+              Subject Performance: Maximum Marks vs Achieved Marks
             </h2>
-            <p className="text-xs text-[#737871]">
-              Lighter bar shows the total actual marks ceiling; vibrant upfront bar shows achieved marks.
+            <p className="text-xs text-[#737871] dark:text-neutral-400">
+              Side-by-side grouped marks: first bar displays total Maximum Marks ceiling, second bar displays student's Achieved Marks.
             </p>
           </div>
 
-          <div className="flex items-center gap-4 text-xs font-medium text-[#555952]">
-            <span className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-xs bg-[#FED7AA] border border-[#FDBA74]" />
-              <span>Actual Max Marks</span>
+          <div className="flex items-center gap-5 text-xs font-semibold text-[#555952] dark:text-neutral-300">
+            <span className="flex items-center gap-2">
+              <span className="w-3.5 h-3.5 rounded-xs bg-[#94A3B8] border border-[#64748B]/30" />
+              <span>1. Max Marks</span>
             </span>
-            <span className="flex items-center gap-1.5">
-              <span className="w-3 h-3 rounded-xs bg-[#F97316]" />
-              <span className="font-bold text-[#F97316]">Achieved Marks</span>
+            <span className="flex items-center gap-2">
+              <span className="w-3.5 h-3.5 rounded-xs bg-[#F97316] shadow-2xs" />
+              <span className="text-[#F97316] font-bold">2. Achieved Marks</span>
             </span>
           </div>
         </div>
 
-        {/* Dual-Layer Bar Chart */}
-        <div className="h-64 w-full pt-2">
+        {/* Well Aligned & Gapped Bar Chart */}
+        <div className="h-72 w-full pt-3">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart
               data={chartData}
-              barGap="-100%" // Directly overlaps the vibrant bar on top of the lighter ceiling bar!
-              margin={{ top: 10, right: 10, left: -15, bottom: 0 }}
+              barGap={8}
+              barCategoryGap="28%"
+              margin={{ top: 15, right: 15, left: -10, bottom: 5 }}
             >
-              <XAxis dataKey="code" tick={{ fontSize: 11 }} />
-              <YAxis tick={{ fontSize: 11 }} />
-              <Tooltip
-                formatter={(value: any, name: any, item: any) => {
-                  if (name === 'Actual Max Marks') return [`${value} marks (Max ceiling)`, 'Actual Maximum'];
-                  return [`${value} marks (${item.payload.percentage}% · Grade ${item.payload.grade})`, 'Achieved'];
-                }}
-                labelFormatter={(label) => {
-                  const sub = chartData.find(c => c.code === label);
-                  return sub ? `${sub.name} (${label})` : `Course ${label}`;
-                }}
+              <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E3DC" opacity={0.7} />
+              <XAxis
+                dataKey="code"
+                tick={{ fontSize: 11, fill: '#555952', fontWeight: 600 }}
+                axisLine={{ stroke: '#E5E3DC' }}
+                tickLine={{ stroke: '#E5E3DC' }}
               />
-              {/* Layer 1 (Background): Lighter bar representing Actual Total Maximum Marks */}
+              <YAxis
+                tick={{ fontSize: 11, fill: '#737871' }}
+                axisLine={{ stroke: '#E5E3DC' }}
+                tickLine={false}
+                domain={[0, (dataMax: number) => Math.ceil((dataMax + 10) / 25) * 25]}
+              />
+              <Tooltip content={<CustomChartTooltip />} cursor={{ fill: 'rgba(249, 115, 22, 0.05)' }} />
+              {/* Bar 1 (First): Maximum Marks */}
               <Bar
                 dataKey="actualMaxMarks"
-                name="Actual Max Marks"
-                fill="#FED7AA"
-                radius={[6, 6, 0, 0]}
-                barSize={38}
+                name="Maximum Marks"
+                fill="#94A3B8"
+                radius={[5, 5, 0, 0]}
+                maxBarSize={28}
               />
-              {/* Layer 2 (Upfront): Vibrant Ember bar representing Achieved Marks */}
+              {/* Bar 2 (Second): Achieved Marks */}
               <Bar
                 dataKey="achievedMarks"
                 name="Achieved Marks"
                 fill="#F97316"
-                radius={[6, 6, 0, 0]}
-                barSize={38}
+                radius={[5, 5, 0, 0]}
+                maxBarSize={28}
               />
             </BarChart>
           </ResponsiveContainer>

@@ -49,7 +49,7 @@ export async function createPeerLearningRoom(params: {
     hostId: params.hostId,
     hostName: params.hostName,
     hostUsername: params.hostUsername,
-    hostAvatarUrl: params.hostAvatarUrl,
+    hostAvatarUrl: params.hostAvatarUrl || null,
     joinerId: null,
     joinerName: null,
     joinerUsername: null,

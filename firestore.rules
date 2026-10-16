@@ -99,5 +99,14 @@ service cloud.firestore {
     match /update_applications/{applicationId} {
       allow read, write: if true;
     }
+
+    // 1-on-1 Peer Learning Rooms & Collaborative Whiteboard Strokes
+    match /peer_learning_rooms/{roomId} {
+      allow read, write: if true;
+
+      match /strokes/{strokeId} {
+        allow read, write: if true;
+      }
+    }
   }
 }
