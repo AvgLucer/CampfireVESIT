@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { MiniMothAdapter } from '../services/authAdapter';
+import { EmailAuthService } from '../services/emailAuthService';
 import { CampfireLogo } from '../components/common/CampfireLogo';
 import {
   Mail,
@@ -69,6 +70,10 @@ export const LoginPage: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [copiedPin, setCopiedPin] = useState(false);
   const [countdown, setCountdown] = useState<number>(30);
+  const [isSendingPin, setIsSendingPin] = useState(false);
+  const [sendPinStatus, setSendPinStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+  const [sendPinMode, setSendPinMode] = useState<'live' | 'demo'>('demo');
+  const [missingConfigList, setMissingConfigList] = useState<string[]>([]);
 
   // References to the 6 PIN input boxes
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
@@ -125,6 +130,40 @@ export const LoginPage: React.FC = () => {
       setErrorMessage('Failed to send verification PIN. Please try again.');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Functional "Send PIN to Email" Handler
+  const handleSendPinToEmail = async () => {
+    if (isSendingPin) return; // Prevent repeated clicks while in progress
+    setErrorMessage(null);
+    setSendPinStatus('sending');
+    setIsSendingPin(true);
+
+    try {
+      const res = await EmailAuthService.sendPinToEmail(vesEmail);
+      if (res.success) {
+        setSendPinStatus('success');
+        setSendPinMode(res.mode);
+        if (res.pin) {
+          setGeneratedPin(res.pin);
+        }
+        if (res.missingConfig) {
+          setMissingConfigList(res.missingConfig);
+        }
+        showToast('Verification code sent successfully!', 'success');
+      } else {
+        setSendPinStatus('error');
+        setErrorMessage(res.error || 'Unable to send code. Please try again.');
+        if (res.missingConfig) {
+          setMissingConfigList(res.missingConfig);
+        }
+      }
+    } catch (err) {
+      console.error('Error sending PIN to email:', err);
+      setSendPinStatus('error');
+    } finally {
+      setIsSendingPin(false);
     }
   };
 
@@ -480,32 +519,94 @@ export const LoginPage: React.FC = () => {
                       Enter 6-Digit Security PIN
                     </label>
 
-                    {/* 6 Individual Digit Inputs */}
-                    <div
-                      className="flex items-center justify-center gap-2 sm:gap-3"
-                      onPaste={handlePaste}
-                    >
-                      {pinDigits.map((digit, idx) => (
-                        <input
-                          key={idx}
-                          ref={(el) => {
-                            inputRefs.current[idx] = el;
-                          }}
-                          type="text"
-                          inputMode="numeric"
-                          pattern="[0-9]*"
-                          maxLength={1}
-                          value={digit}
-                          onChange={(e) => handleDigitChange(idx, e.target.value)}
-                          onKeyDown={(e) => handleKeyDown(idx, e)}
-                          className={`w-11 h-14 sm:w-12 sm:h-16 text-center text-xl sm:text-2xl font-black font-mono rounded-2xl border transition-all focus:outline-none ${
-                            digit
-                              ? 'border-[#F97316] ring-2 ring-[#F97316]/20 bg-orange-50/50 dark:bg-orange-950/20 text-[#171916] dark:text-neutral-100'
-                              : 'border-[#E5E3DC] dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[#171916] dark:text-neutral-100 focus:border-[#F97316]'
-                          }`}
-                        />
-                      ))}
+                    {/* PIN Input and Send PIN to Email button beside */}
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 sm:gap-3">
+                      {/* 6 Individual Digit Inputs */}
+                      <div
+                        className="flex items-center justify-center gap-1.5 sm:gap-2.5"
+                        onPaste={handlePaste}
+                      >
+                        {pinDigits.map((digit, idx) => (
+                          <input
+                            key={idx}
+                            ref={(el) => {
+                              inputRefs.current[idx] = el;
+                            }}
+                            type="text"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
+                            maxLength={1}
+                            value={digit}
+                            onChange={(e) => handleDigitChange(idx, e.target.value)}
+                            onKeyDown={(e) => handleKeyDown(idx, e)}
+                            className={`w-10 h-14 sm:w-12 sm:h-16 text-center text-xl sm:text-2xl font-black font-mono rounded-2xl border transition-all focus:outline-none ${
+                              digit
+                                ? 'border-[#F97316] ring-2 ring-[#F97316]/20 bg-orange-50/50 dark:bg-orange-950/20 text-[#171916] dark:text-neutral-100'
+                                : 'border-[#E5E3DC] dark:border-neutral-700 bg-white dark:bg-neutral-800 text-[#171916] dark:text-neutral-100 focus:border-[#F97316]'
+                            }`}
+                          />
+                        ))}
+                      </div>
+
+                      {/* "Send PIN to Email" button beside existing PIN field */}
+                      <button
+                        type="button"
+                        onClick={handleSendPinToEmail}
+                        disabled={isSendingPin}
+                        className="w-full sm:w-auto h-12 sm:h-16 px-4 rounded-2xl bg-white dark:bg-neutral-800 border-2 border-[#F97316] hover:bg-orange-50 dark:hover:bg-orange-950/30 text-[#F97316] font-bold text-xs sm:text-sm shadow-2xs hover:shadow-xs transition-all flex items-center justify-center gap-2 shrink-0 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                        title={`Send 6-digit verification PIN to ${vesEmail}`}
+                      >
+                        {isSendingPin ? (
+                          <>
+                            <RefreshCw className="w-4 h-4 animate-spin text-[#F97316]" />
+                            <span className="whitespace-nowrap">Sending...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Mail className="w-4 h-4 text-[#F97316]" />
+                            <span className="whitespace-nowrap">Send PIN to Email</span>
+                          </>
+                        )}
+                      </button>
                     </div>
+
+                    {/* Status message near the button */}
+                    {sendPinStatus !== 'idle' && (
+                      <div className="mt-3 text-center transition-all">
+                        {sendPinStatus === 'sending' && (
+                          <div className="inline-flex items-center gap-1.5 text-xs text-[#555952] dark:text-neutral-400 font-medium">
+                            <RefreshCw className="w-3.5 h-3.5 animate-spin text-[#F97316]" />
+                            <span>Sending verification code...</span>
+                          </div>
+                        )}
+                        {sendPinStatus === 'success' && (
+                          <div className="flex flex-col items-center gap-1">
+                            <span className="inline-flex items-center gap-1.5 text-xs text-emerald-600 dark:text-emerald-400 font-bold">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                              <span>Verification code sent successfully!</span>
+                            </span>
+                            {sendPinMode === 'demo' && (
+                              <span className="text-[11px] text-[#737871] dark:text-neutral-400 max-w-md">
+                                <span className="font-semibold text-amber-600 dark:text-amber-400">[Demo Mode]</span> Live mailbox dispatch requires SMTP configuration (SMTP_HOST/USER/PASS). Generated PIN is simulated for testing.
+                              </span>
+                            )}
+                          </div>
+                        )}
+                        {sendPinStatus === 'error' && (
+                          <div className="flex flex-col items-center gap-1">
+                            <span className="inline-flex items-center gap-1.5 text-xs text-rose-600 dark:text-rose-400 font-semibold">
+                              <AlertCircle className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
+                              <span>Unable to send code. Please try again.</span>
+                            </span>
+                            {missingConfigList.length > 0 && (
+                              <span className="text-[10px] text-[#737871] dark:text-neutral-400">
+                                Missing provider configuration: {missingConfigList.join(', ')}
+                              </span>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
 
                   {/* Resend & Back controls */}
