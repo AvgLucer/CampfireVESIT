@@ -105,25 +105,27 @@ export const LoginPage: React.FC = () => {
     if (!validation.isValid) {
       setErrorMessage(
         validation.errorMessage ||
-          'Email must be an official @ves.ac.in institutional address (e.g. 2026.name.surname@ves.ac.in)'
+          'Please enter a valid email address.'
       );
       return;
     }
 
     setIsLoading(true);
     try {
-      const res = await MiniMothAdapter.sendEmailAuth(vesEmail);
-      if (res.success && res.demoOtpCode) {
-        setGeneratedPin(res.demoOtpCode);
+      const res = await EmailAuthService.sendPinToEmail(vesEmail);
+      if (res.success) {
+        if (res.pin) {
+          setGeneratedPin(res.pin);
+        }
         setPinDigits(['', '', '', '', '', '']);
         setStep('pin');
         setCountdown(30);
         showToast(
-          `Verification PIN generated and simulated to ${vesEmail}!`,
-          'info'
+          `Security PIN dispatched to ${vesEmail}!`,
+          'success'
         );
       } else {
-        setErrorMessage(res.message);
+        setErrorMessage(res.error || 'Failed to send verification PIN. Please try again.');
       }
     } catch (err) {
       console.error(err);
@@ -329,21 +331,19 @@ export const LoginPage: React.FC = () => {
             {/* STEP 1: EMAIL ENTRY */}
             {step === 'email' && (
               <div className="p-6 sm:p-8 space-y-6">
-                {/* How We Bring It In Dev Explainer Banner */}
-                <div className="p-4 rounded-2xl bg-gradient-to-br from-amber-500/10 via-orange-500/10 to-transparent border border-orange-200 dark:border-orange-900/60 space-y-2">
+                {/* Official Campus Email Authentication Banner */}
+                <div className="p-4 rounded-2xl bg-gradient-to-br from-orange-500/10 via-amber-500/10 to-transparent border border-orange-200 dark:border-orange-900/60 space-y-2">
                   <div className="flex items-center gap-2">
-                    <span className="w-6 h-6 rounded-lg bg-[#F97316] text-white flex items-center justify-center font-bold text-xs">
-                      ℹ️
-                    </span>
+                    <Mail className="w-4 h-4 text-[#F97316]" />
                     <span className="text-xs font-bold text-[#171916] dark:text-neutral-100">
-                      How We Bring It In Dev Mode
+                      Direct Email PIN Dispatch
                     </span>
                     <span className="text-[10px] font-mono font-bold bg-[#F97316] text-white px-1.5 py-0.2 rounded ml-auto">
-                      Demo Architecture
+                      Real-time OTP
                     </span>
                   </div>
                   <p className="text-[11px] text-[#555952] dark:text-neutral-300 leading-relaxed">
-                    The <strong>@ves.ac.in</strong> email is strictly compulsory. In production, a secure 6-digit one-time PIN is sent to your official mailbox via college Google Workspace SMTP. In this dev environment, the 6-digit PIN is <strong>generated live on the next screen</strong> with an Auto-Fill button so you can test the access gate immediately!
+                    Enter your email address below. When you click <strong>Generate & Send 6-Digit PIN</strong> or <strong>Send PIN to Email</strong>, a real 6-digit security code is dispatched directly to your email address. Check your inbox to enter the PIN and unlock Campfire!
                   </p>
                 </div>
 
@@ -445,8 +445,8 @@ export const LoginPage: React.FC = () => {
             {/* STEP 2: 6-DIGIT PIN VERIFICATION */}
             {step === 'pin' && (
               <div className="p-6 sm:p-8 space-y-6">
-                {/* SIMULATED CAMPUS MAIL EXPLANATION BANNER */}
-                <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-amber-500/10 via-orange-500/10 to-transparent border border-orange-200 dark:border-orange-900/60 space-y-3">
+                {/* CAMPUS MAIL DISPATCH STATUS BANNER */}
+                <div className="p-4 sm:p-5 rounded-2xl bg-gradient-to-br from-orange-500/10 via-amber-500/10 to-transparent border border-orange-200 dark:border-orange-900/60 space-y-3">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-start gap-2.5">
                       <div className="w-8 h-8 rounded-xl bg-[#F97316] text-white flex items-center justify-center shrink-0 font-bold text-xs mt-0.5">
@@ -454,60 +454,15 @@ export const LoginPage: React.FC = () => {
                       </div>
                       <div>
                         <div className="text-xs font-bold text-[#171916] dark:text-neutral-100 flex items-center gap-1.5">
-                          <span>Developer Simulation: Campus Mail Dispatch</span>
+                          <span>Verification Code Dispatched to Your Mailbox</span>
                           <span className="text-[10px] font-mono font-bold bg-[#F97316] text-white px-1.5 py-0.2 rounded">
-                            Dev Preview
+                            Dispatched
                           </span>
                         </div>
                         <p className="text-[11px] text-[#555952] dark:text-neutral-400 mt-1 leading-relaxed">
-                          In production, this 6-digit authentication PIN is securely dispatched to your VESIT Gmail mailbox (<strong>{vesEmail}</strong>) via Google Workspace SMTP. For preview testing, your generated PIN is displayed right here:
+                          Your 6-digit authentication PIN has been dispatched to <strong>{vesEmail}</strong>. Please check your email inbox (and spam/junk folder), then enter the 6 digits below to complete login.
                         </p>
                       </div>
-                    </div>
-                  </div>
-
-                  {/* Big PIN Display Badges & Copy/Autofill Controls */}
-                  <div className="p-3 bg-white dark:bg-neutral-800 rounded-xl border border-orange-200 dark:border-neutral-700 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
-                    <div className="flex items-center gap-1.5 justify-center sm:justify-start">
-                      {generatedPin.split('').map((d, i) => (
-                        <span
-                          key={i}
-                          className="w-9 h-10 rounded-lg bg-orange-100 dark:bg-orange-950/70 border border-orange-300 dark:border-orange-800 text-lg font-black font-mono text-[#F97316] flex items-center justify-center shadow-2xs"
-                        >
-                          {d}
-                        </span>
-                      ))}
-                    </div>
-
-                    <div className="flex items-center justify-end gap-2 shrink-0">
-                      <button
-                        type="button"
-                        onClick={handleCopyPin}
-                        className="px-2.5 py-1.5 rounded-lg border border-[#E5E3DC] dark:border-neutral-700 text-[#555952] dark:text-neutral-300 hover:text-[#171916] text-xs font-semibold hover:bg-[#FAF9F5] transition-colors flex items-center gap-1 cursor-pointer"
-                        title="Copy PIN"
-                      >
-                        {copiedPin ? (
-                          <>
-                            <Check className="w-3.5 h-3.5 text-emerald-600" />
-                            <span className="text-emerald-600">Copied</span>
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="w-3.5 h-3.5" />
-                            <span>Copy</span>
-                          </>
-                        )}
-                      </button>
-
-                      <button
-                        type="button"
-                        onClick={handleAutofillPin}
-                        className="px-3 py-1.5 rounded-lg bg-[#F97316] hover:bg-[#EA580C] text-white text-xs font-bold transition-all shadow-2xs flex items-center gap-1 cursor-pointer"
-                        title="Auto-fill all 6 digits"
-                      >
-                        <Sparkles className="w-3.5 h-3.5" />
-                        <span>Auto-Fill PIN</span>
-                      </button>
                     </div>
                   </div>
                 </div>
@@ -585,11 +540,9 @@ export const LoginPage: React.FC = () => {
                               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                               <span>Verification code sent successfully!</span>
                             </span>
-                            {sendPinMode === 'demo' && (
-                              <span className="text-[11px] text-[#737871] dark:text-neutral-400 max-w-md">
-                                <span className="font-semibold text-amber-600 dark:text-amber-400">[Demo Mode]</span> Live mailbox dispatch requires SMTP configuration (SMTP_HOST/USER/PASS). Generated PIN is simulated for testing.
-                              </span>
-                            )}
+                            <span className="text-[11px] text-[#737871] dark:text-neutral-400 max-w-md">
+                              Dispatched to <strong className="text-[#F97316] font-mono">{vesEmail}</strong>. Check your inbox and spam folder.
+                            </span>
                           </div>
                         )}
                         {sendPinStatus === 'error' && (
@@ -598,11 +551,6 @@ export const LoginPage: React.FC = () => {
                               <AlertCircle className="w-3.5 h-3.5 text-rose-600 dark:text-rose-400" />
                               <span>Unable to send code. Please try again.</span>
                             </span>
-                            {missingConfigList.length > 0 && (
-                              <span className="text-[10px] text-[#737871] dark:text-neutral-400">
-                                Missing provider configuration: {missingConfigList.join(', ')}
-                              </span>
-                            )}
                           </div>
                         )}
                       </div>

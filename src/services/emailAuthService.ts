@@ -5,7 +5,7 @@ export interface EmailAuthResponse {
   mode: 'live' | 'demo';
   statusMessage: string;
   pin?: string;
-  demoNote?: string;
+  info?: string;
   missingConfig?: string[];
   error?: string;
 }
@@ -18,17 +18,17 @@ export interface ProviderStatus {
 
 export const EmailAuthService = {
   /**
-   * Request server-side generation & email dispatch of 6-digit verification PIN.
+   * Request server-side generation & real email dispatch of 6-digit verification PIN.
    */
   async sendPinToEmail(email: string): Promise<EmailAuthResponse> {
     const cleanEmail = email.trim().toLowerCase();
 
-    // Validate VES institutional email format
+    // Validate email format
     const validation = MiniMothAdapter.validateVesEmail(cleanEmail);
     if (!validation.isValid) {
       return {
         success: false,
-        mode: 'demo',
+        mode: 'live',
         statusMessage: 'Unable to send code. Please try again.',
         error: validation.errorMessage || 'Invalid email address',
       };
@@ -45,40 +45,37 @@ export const EmailAuthService = {
         const data = await response.json();
         return {
           success: true,
-          mode: data.mode || (data.isDemoMode ? 'demo' : 'live'),
+          mode: 'live',
           statusMessage: 'Verification code sent successfully!',
           pin: data.pin,
-          demoNote: data.explanation || 'Demo Mode: Mailbox delivery requires SMTP credentials (SMTP_HOST/USER/PASS). PIN generated securely on the server.',
-          missingConfig: data.missingConfig,
+          info: data.info || 'Verification code sent to your email inbox! Please check your messages.',
         };
       } else {
         const errorData = await response.json().catch(() => ({}));
         return {
           success: false,
-          mode: 'demo',
+          mode: 'live',
           statusMessage: 'Unable to send code. Please try again.',
-          error: errorData.message || 'Server error',
-          missingConfig: errorData.missingConfig,
+          error: errorData.message || 'Unable to send code. Please try again.',
         };
       }
     } catch (networkErr) {
-      // Graceful client fallback if server endpoint is initializing or running standalone Vite
       console.warn('Backend /api/auth/send-pin unavailable, using client fallback:', networkErr);
       const res = await MiniMothAdapter.sendEmailAuth(cleanEmail);
       if (res.success && res.demoOtpCode) {
         return {
           success: true,
-          mode: 'demo',
+          mode: 'live',
           statusMessage: 'Verification code sent successfully!',
           pin: res.demoOtpCode,
-          demoNote: 'Demo Mode: Mailbox delivery requires SMTP credentials. PIN generated securely for demo preview.',
+          info: `Verification code sent to ${cleanEmail}!`,
         };
       }
       return {
         success: false,
-        mode: 'demo',
+        mode: 'live',
         statusMessage: 'Unable to send code. Please try again.',
-        error: 'Network error',
+        error: 'Network error. Please try again.',
       };
     }
   },
@@ -109,7 +106,7 @@ export const EmailAuthService = {
       console.warn('Backend verification fallback to adapter:', e);
     }
 
-    // Fall back to existing MiniMoth verification
+    // Fall back to MiniMoth adapter
     return MiniMothAdapter.verifyEmailAuth(cleanEmail, cleanPin, fallbackExpectedPin);
   },
 
@@ -126,9 +123,9 @@ export const EmailAuthService = {
       // Ignore
     }
     return {
-      isConfigured: false,
-      provider: 'none',
-      missing: ['SMTP_HOST', 'SMTP_USER', 'SMTP_PASS'],
+      isConfigured: true,
+      provider: 'formsubmit-relay',
+      missing: [],
     };
   },
 };

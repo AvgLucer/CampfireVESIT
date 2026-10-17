@@ -64,10 +64,10 @@ export const MiniMothAdapter = {
       };
     }
 
-    if (!cleanEmail.endsWith('@ves.ac.in')) {
+    if (!cleanEmail.includes('@') || !cleanEmail.includes('.')) {
       return {
         isValid: false,
-        errorMessage: 'Email must be an official @ves.ac.in institutional address (e.g. 2026.name.surname@ves.ac.in).',
+        errorMessage: 'Please enter a valid email address.',
       };
     }
 
