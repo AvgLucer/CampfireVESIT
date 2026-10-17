@@ -140,7 +140,7 @@ Campfire aims to follow approximately **90% of the proposed technology stack**, 
 | Backend & Database | Firebase Firestore |
 | Maps | Leaflet, React Leaflet, OpenStreetMap |
 | Charts | Recharts |
-| Authentication Demo | In-app PIN generation and display |
+| Authentication Demo | SMPTP + FireBase Auth Direct on Mail |
 
 ## 🏗️ Architecture
 
